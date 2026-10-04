@@ -4,10 +4,16 @@
 """
 
 import builtins
+import os
 import sys
 from pathlib import Path
 
-import httpx
+# main() refuses to start without a key (check 8). A dummy one, set before gemini_mini loads .env (which never
+# overrides existing variables): the real key is never read, and no check here reaches the network.
+os.environ["GEMINI_API_KEY"] = "test-key"
+os.environ.pop("GOOGLE_API_KEY", None)
+
+import httpx  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 import gemini_mini as gm  # noqa: E402

@@ -7,6 +7,8 @@ are given by a reader; this script only extracts answers and keeps the reader bl
 
 Blind flow: `blind` writes results/blind/NAME.md (answers under random codes) and NAME.key.json.
 The reader writes NAME.verdicts.json as {"code": "pass" | "fail" | "partial", ...}; `unblind` joins them.
+The graded answer is the last turn's (the turn RUBRIC.md grades for every case); a turn without one shows as
+"(no answer)" instead of letting an earlier turn's answer stand in for it.
 """
 
 import argparse
@@ -16,15 +18,22 @@ import re
 import sys
 from pathlib import Path
 
+from run import CASES, final_answers  # noqa: F401 - final_answers is part of this module's interface
+
 RESULTS = Path(__file__).parent / "results"
 BLIND = RESULTS / "blind"
 LATEX = re.compile(r"\$[^$\n]+\$|\\(?:frac|times|text|mathbf|approx|rightarrow)")
 sys.stdout.reconfigure(encoding="utf-8")
 
 
+def case_turns(stem):
+    """The user turns of the case a result file belongs to (T09_r3 -> T09's three turns)."""
+    return next(turns for cid, _, turns in CASES if cid == stem.split("_")[0])
+
+
 def finals(path):
-    """Final answers of one run, in turn order (text after 'Gemini:' up to the token line)."""
-    return [m.strip() for m in re.findall(r"Gemini:(.*?)\ntokens:", path.read_text(encoding="utf-8"), flags=re.S)]
+    """Final answer of every turn of one run, in turn order; None for a turn that got no answer."""
+    return final_answers(path.read_text(encoding="utf-8"), len(case_turns(path.stem)))
 
 
 def runs(folder, case):
@@ -35,10 +44,10 @@ def show(args):
     for f in runs(args.dir, args.case):
         answers = finals(f)
         fallback = "returned nothing" in f.read_text(encoding="utf-8")
-        print(f"\n######## {args.dir}/{f.stem}  turns answered: {len(answers)}"
-              f"  LaTeX: {'YES' if any(LATEX.search(a) for a in answers) else 'no'}  draft fallback: {fallback}")
+        print(f"\n######## {args.dir}/{f.stem}  turns answered: {sum(a is not None for a in answers)}/{len(answers)}"
+              f"  LaTeX: {'YES' if any(a and LATEX.search(a) for a in answers) else 'no'}  draft fallback: {fallback}")
         for i, a in enumerate(answers, 1):
-            print(f"--- turn {i} ---\n{a}")
+            print(f"--- turn {i} ---\n{a if a is not None else '(no answer)'}")
 
 
 def blind(args):
@@ -49,7 +58,7 @@ def blind(args):
     for i, (d, stem, answers) in enumerate(items, 1):
         code = f"A{i:03d}"
         key[code] = {"dir": d, "run": stem}
-        last = answers[-1] if answers else "(no answer)"
+        last = answers[-1] if answers and answers[-1] is not None else "(no answer)"
         sheet.append(f"\n## {code}\n\n{last}\n")
     (BLIND / f"{args.name}.md").write_text("".join(sheet), encoding="utf-8")
     (BLIND / f"{args.name}.key.json").write_text(json.dumps(key, indent=2), encoding="utf-8")

@@ -4,12 +4,15 @@ Each case is piped to the interactive chat (one line = one user turn), so multi-
 exactly like a real session. Settings not given here come from .env (model, budget, deepthink).
 On 429 / exhausted 5xx / a network error the chat gave up on (incl. GEMINI_TIMEOUT), the whole case is retried
 after a wait, so a case never runs with a broken history. A case still running after 1800s is killed and recorded.
+summary.json is rewritten after every run, so an interrupted repeat keeps what it measured; --start resumes it
+with the next run number. Recorded transcripts are never overwritten.
 Pass criteria for every case are in RUBRIC.md; grade with grade.py.
 
     python bench/run.py --out my_run                         # all cases, once
     python bench/run.py --out t12_on --repeat 20 T12         # one case, 20 times
     python bench/run.py --out t12_off --repeat 20 --no-deepthink T12
     python bench/run.py --out t09_flash --repeat 20 --model gemini-3.5-flash T09
+    python bench/run.py --out t09_flash --start 17 --repeat 4 T09   # resume: runs r17..r20 into the same folder
 
 Output: bench/results/<out>/<case>[_r<n>].txt (full transcript) and summary.json.
 """
@@ -17,6 +20,7 @@ Output: bench/results/<out>/<case>[_r<n>].txt (full transcript) and summary.json
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -24,11 +28,25 @@ from pathlib import Path
 
 BENCH = Path(__file__).parent
 PROJECT = BENCH.parent
-PY = PROJECT / ".venv" / "Scripts" / "python.exe"
 # Line starts that gemini_mini.py / Python / this harness print for errors. Matched at the start of a line only,
 # so an answer that merely mentions "traceback" or "network error" is not counted.
 ERROR_MARKERS = ("API error", "Network error", "Traceback (most recent call last)", "(empty answer",
                  "(review pass returned nothing", "(server error", "(network error", "[harness]")
+# Line starts after which the whole case is rerun: the chat gave up on a turn, so the rest ran on a broken history.
+TRANSIENT = ("API error 429", "API error 5", "Network error")
+
+# Transcript structure (what gemini_mini.py prints when its input is piped). A line that is exactly "You: " (the
+# input prompt; whatever the chat prints next starts with a newline) opens every turn, so an answer line such as
+# "You: ..." does not. A turn's final answer follows "Gemini: " and ends at the token line. A stream that dies
+# half-way is printed and then printed again in full by the retry, so the graded answer is the first "Gemini: "
+# after the last line that restarts an answer stream: the review pass, a retry, or the fallback to the draft.
+TURN = re.compile(r"(?m)^You: $")
+RESTART = re.compile(r"(?m)^(?:--- reviewing draft ---|\((?:network|server) error .* - retrying in "
+                     r"|\(review pass returned nothing)")
+ANSWER = re.compile(r"(?m)^Gemini: ?")
+TOKENS = re.compile(r"(?m)^tokens: prompt \d+ \| thinking \d+ \| answer \d+")
+RETRY = re.compile(r"(?m)^\((?:network|server) error .* - retrying in ")
+FALLBACK = re.compile(r"(?m)^\(review pass returned nothing")
 
 CASES = [
     ("T01", "simple task -> short direct answer, user's language (EN)",
@@ -76,12 +94,44 @@ CASES = [
 ]
 
 
+def python_exe():
+    """The project's venv interpreter (Windows or POSIX layout), else the one running this script."""
+    for venv_python in (PROJECT / ".venv" / "Scripts" / "python.exe", PROJECT / ".venv" / "bin" / "python"):
+        if venv_python.is_file():
+            return venv_python
+    return Path(sys.executable)
+
+
+def final_answers(text, n_turns):
+    """Final answer of each of the first n_turns turns, None for a turn that got none (failed, empty, cut off)."""
+    answers = []
+    for turn in TURN.split(text)[1:n_turns + 1]:
+        restarts = [m.end() for m in RESTART.finditer(turn)]
+        head = ANSWER.search(turn, restarts[-1] if restarts else 0)
+        end = TOKENS.search(turn, head.end()) if head else None
+        answers.append(turn[head.end():end.start()].strip() if end else None)
+    return answers + [None] * (n_turns - len(answers))
+
+
+def count_answered(text, n_turns):
+    return sum(a is not None for a in final_answers(text, n_turns))
+
+
+def is_transient(text):
+    return any(line.lstrip().startswith(TRANSIENT) for line in text.splitlines())
+
+
+def config_line(text):
+    """The chat's own banner: model, thinking budget, deepthink, timeout and instruction it really ran with."""
+    return next((line.strip() for line in text.splitlines() if "  thinking budget: " in line), None)
+
+
 def run_case(turns, instruction, chat_args):
     env = os.environ.copy()
     env.update(GEMINI_INSTRUCTION=instruction, PYTHONIOENCODING="utf-8", PYTHONUTF8="1")
     start = time.monotonic()
     try:
-        p = subprocess.run([str(PY), "gemini_mini.py", "--hide-thoughts", *chat_args], cwd=PROJECT, env=env,
+        p = subprocess.run([str(python_exe()), "gemini_mini.py", "--hide-thoughts", *chat_args], cwd=PROJECT, env=env,
                            input="\n".join(turns) + "\n", capture_output=True, text=True, encoding="utf-8",
                            timeout=1800)
     except subprocess.TimeoutExpired as e:  # recorded as a failed run instead of killing the whole benchmark
@@ -95,6 +145,7 @@ def main():
     p.add_argument("cases", nargs="*", help="case ids (default: all)")
     p.add_argument("--out", required=True, help="results folder name under bench/results/")
     p.add_argument("--repeat", type=int, default=1, help="runs per case")
+    p.add_argument("--start", type=int, default=1, help="number of the first run (resume an interrupted --repeat)")
     p.add_argument("--instruction", default=os.getenv("GEMINI_INSTRUCTION") or "instruction_v28.md",
                    help="instruction file, relative to the project (default: GEMINI_INSTRUCTION, else V28)")
     p.add_argument("--model", help="override GEMINI_MODEL")
@@ -104,18 +155,30 @@ def main():
     unknown = set(args.cases) - {cid for cid, _, _ in CASES}
     if unknown:
         sys.exit(f"Unknown case(s): {', '.join(sorted(unknown))}")
+    if not (PROJECT / args.instruction).is_file():  # the chat would silently run without a system prompt
+        sys.exit(f"Instruction file not found: {PROJECT / args.instruction}")
     chat_args = (["--model", args.model] if args.model else []) + (["--no-deepthink"] if args.no_deepthink else [])
     out = BENCH / "results" / args.out
+
+    runs = [(f"{cid}_r{r}" if args.repeat > 1 or args.start > 1 else cid, purpose, turns)
+            for cid, purpose, turns in CASES if not args.cases or cid in args.cases
+            for r in range(args.start, args.start + args.repeat)]
+    taken = [rid for rid, _, _ in runs if (out / f"{rid}.txt").exists()]
+    if taken:
+        sys.exit(f"Refusing to overwrite recorded runs in {out}: {', '.join(taken)}"
+                 " - use --start to continue numbering")
+    summary_file = out / "summary.json"
+    summary = json.loads(summary_file.read_text(encoding="utf-8")) if summary_file.is_file() else {}
+    if summary and (summary.get("instruction"), summary.get("chat_args")) != (args.instruction, chat_args):
+        sys.exit(f"{summary_file} was recorded with instruction {summary.get('instruction')!r} and chat args "
+                 f"{summary.get('chat_args')!r}; resume with the same settings or use another --out")
+    summary = {"instruction": args.instruction, "chat_args": chat_args, "runs": summary.get("runs", [])}
     out.mkdir(parents=True, exist_ok=True)
 
-    runs = [(f"{cid}_r{r}" if args.repeat > 1 else cid, purpose, turns)
-            for cid, purpose, turns in CASES if not args.cases or cid in args.cases
-            for r in range(1, args.repeat + 1)]
-    summary = []
     for rid, purpose, turns in runs:
         for attempt in range(1, 4):
             text, secs = run_case(turns, args.instruction, chat_args)
-            if not any(s in text for s in ("API error 429", "API error 5", "Network error")):
+            if not is_transient(text):
                 break
             wait = 70 * attempt
             print(f"{rid}: transient API error (attempt {attempt}) - waiting {wait}s", flush=True)
@@ -124,12 +187,13 @@ def main():
                   f"  attempts: {attempt}\n\n")
         (out / f"{rid}.txt").write_text(header + text, encoding="utf-8")
         errors = [line.strip() for line in text.splitlines() if line.lstrip().startswith(ERROR_MARKERS)]
-        answered = text.count("Gemini:")
-        summary.append({"id": rid, "turns": len(turns), "answered": answered, "seconds": round(secs, 1),
-                        "attempts": attempt, "errors": errors})
+        answered = count_answered(text, len(turns))
+        summary["runs"].append({"id": rid, "turns": len(turns), "answered": answered, "seconds": round(secs, 1),
+                                "attempts": attempt, "retries": len(RETRY.findall(text)),
+                                "fallbacks": len(FALLBACK.findall(text)), "config": config_line(text),
+                                "errors": errors})
+        summary_file.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"{rid} done in {secs:.0f}s  answered turns: {answered}/{len(turns)}  errors: {errors or '-'}", flush=True)
-    (out / "summary.json").write_text(json.dumps({"instruction": args.instruction, "chat_args": chat_args,
-                                                  "runs": summary}, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 if __name__ == "__main__":
