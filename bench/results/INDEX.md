@@ -101,3 +101,39 @@ Cấu hình đúng như cổng lần 2 (prompt như `v28-pre-bench` + timeout); 
 ### Trạng thái: dừng ở 16/20 (theo yêu cầu, trước khi đẩy lên GitHub)
 
 Đã chạy xong 16 lần (`T09_r1` đến `T09_r16`, đều đủ 3 lượt), chưa chấm. Lần thứ 17 bị dừng giữa chừng nên không có file; thư mục chưa có `summary.json`. `baseline-v28` chưa được gắn tag; trạng thái hiện tại được commit dưới dạng WIP.
+
+### Kết quả 16/20 (chấm theo `blind/t09_baseline.rules.md`, phiếu mù `blind/t09_baseline.*`)
+
+Luật áp dụng rubric T09 được viết thành file trước khi mở phiếu. Một người chấm (Claude). Chưa chạy được r17–r20 vì phiên chấm không có `GEMINI_API_KEY`.
+
+| | strict (chính thức) | lenient (chỉ tính read replica khi nói rõ dùng để đọc session) |
+|---|---|---|
+| pass / partial / fail | 4 / 1 / 11 | 6 / 2 / 8 |
+| pass + partial | 5/16 (Wilson 95%: 14–56%) | 8/16 (28–72%) |
+
+- Bản nháp lượt 3 đã fail ở 12/16 run (strict). Lượt phản biện: sửa được 2 (r7, r12), làm hỏng 1 (r11, thêm "hoặc polling ngắn"). Trong 11 fail, cơ chế hỏng có sẵn trong bản nháp ở 7, do lượt phản biện đưa vào ở 4.
+- Cơ chế hỏng: read replica cho việc đọc session (3 nói rõ, 3 chung chung), cache cục bộ có TTL là phương án chính 2, JWT + cache `token_version` 1, polling 1, sticky session 1.
+- 16/16 run: đủ 3 lượt, 1 lần chạy, 0 thử lại, 0 timeout, 0 lỗi kết nối; 1 lần dùng bản nháp vì phản biện rỗng (r7, lượt 2). Không có lỗi harness hay hạ tầng; 11 fail đều là MODEL_CAPABILITY / CURRENT_CONFIGURATION_LIMITATION.
+- Thời gian từng run không có: harness chỉ ghi `summary.json` ở cuối, mà lần chạy bị dừng ở r17 (lỗi H4 dưới đây).
+
+Mốc `baseline-v28` (định nghĩa, cấu hình, giới hạn, cách chạy nốt r17–r20): `bench/BASELINE.md`.
+
+## Lỗi harness tìm thấy khi kiểm toán (2026-10-04, đã sửa)
+
+Mỗi lỗi được tái hiện trên mã cũ trước khi sửa, rồi thành một kiểm tra trong `bench/test_harness.py` (hoặc `test_offline.py` / `test_timeout.py`). Không sửa nào chạm tới prompt, `REVIEW_PROMPT`, model, deepthink, rubric, câu thử, timeout hay chính sách thử lại.
+
+| Mã | Lỗi | Tái hiện trên mã cũ | Sửa |
+|---|---|---|---|
+| H1 | `run.py` gọi cứng `.venv/Scripts/python.exe` (chỉ có trên Windows) | Linux: `FileNotFoundError`, không chạy được câu nào | dùng venv đúng hệ điều hành, không có thì dùng Python đang chạy |
+| H2 | `grade.py` không gắn câu trả lời với lượt: lượt không có câu trả lời làm lệch, `blind` (lấy câu cuối) chấm nhầm lượt trước | dữ liệu thật `rep_v274/T09_r2` (lượt 3 rỗng): trả về 2 câu, phiếu mù sẽ chấm lượt 2 như lượt 3; lượt 3 lỗi mạng: chấm lượt 2 | cắt transcript theo lượt (`You: `), lượt không có câu trả lời là `(no answer)` |
+| H3 | Stream đứt giữa câu rồi thử lại: câu trả lời được chấm gồm cả phần đứt, dòng báo lỗi và chữ `Gemini:` thứ hai; `answered` đếm 2 cho 1 lượt | chat thật + server giả (`stall_mid` rồi `ok`) | câu trả lời của lượt là `Gemini:` đầu tiên sau lần khởi động stream cuối cùng; `answered` đếm theo lượt |
+| H4 | `summary.json` chỉ được ghi khi chạy xong toàn bộ | `2026-10-04_t09_baseline` không có `summary.json` (mất thời gian, số lần chạy của r1–r16) | ghi lại sau mỗi run |
+| H5 | Chạy tiếp một lần lặp bị dừng sẽ ghi đè `T09_r1…` | `--repeat 4` vào thư mục cũ ghi đè `T09_r1.txt` | thêm `--start N`; từ chối ghi đè transcript đã có; nối `summary.json` cũ, từ chối nếu khác instruction / chat args |
+| H6 | File instruction không tồn tại: chat chạy **không có system prompt**, `summary.json` vẫn ghi tên file | `--instruction no_such.md`: chạy xong, ghi `no_such.md` | từ chối trước khi chạy |
+| H7 | Điều kiện chạy lại cả câu khớp chuỗi ở bất kỳ đâu (khác `ERROR_MARKERS` đã chuyển sang đầu dòng) | câu trả lời nhắc "Network error" giữa dòng: chạy lại 3 lần, chờ 420 s, giữ mẫu khác | chỉ khớp ở đầu dòng; lỗi thật của chat vẫn được chạy lại |
+| H8 | `test_offline.py` cần key thật: không có key thì dừng ở kiểm tra 8 (exit 1) | phiên này không có key: 8/9 rồi thoát | đặt key giả như `test_timeout.py` |
+| H9 | `GEMINI_TIMEOUT=-1` (dễ nhầm với `-1` = dynamic của thinking budget): crash `ValueError` ở lượt chat đầu, mất phiên | chat thật + server giả: traceback, 0 request | từ chối khi khởi động, kèm thông báo |
+
+Thêm vào `summary.json` của mỗi run: `retries` (số lần thử lại trong chat), `fallbacks` (dùng bản nháp vì phản biện rỗng), `config` (dòng banner: model, budget, deepthink, timeout, instruction mà chat thực sự dùng). Banner của chat in thêm `timeout`.
+
+Kiểm tra phép đo không đổi: với parser đã sửa, mọi lượt có câu trả lời trong 235 transcript đã lưu cho ra đúng văn bản như parser cũ (`test_harness.py`); phiếu mù `t09_baseline` sinh lại trùng từng byte. Không phán quyết cũ nào đổi; các phiếu T12 trước đây không chứa run nào bị H2/H3.

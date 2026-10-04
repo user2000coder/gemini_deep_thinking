@@ -41,7 +41,7 @@ GEMINI_API_KEY=AIza...
 | `GEMINI_THINKING_BUDGET` | `max` | Số token tối đa model được dùng để suy nghĩ. `max` là mức cao nhất (24576), `-1` để model tự quyết, `0` là tắt suy nghĩ, hoặc ghi một con số cụ thể |
 | `GEMINI_INSTRUCTION` | `instruction_v28.md` | File system prompt, đường dẫn tính từ thư mục dự án. Đổi thành `instruction.md` để quay lại V27.4 |
 | `GEMINI_DEEPTHINK` | `on` | `on`: mỗi câu chạy 2 lượt (nháp → phản biện → trả lời). `off`: 1 lượt |
-| `GEMINI_TIMEOUT` | (không đặt, mặc định `180`) | Số giây chờ Gemini mà không nhận được dữ liệu nào; quá thì thử lại như lỗi mạng rồi báo lỗi. `0` là chờ vô hạn. SDK cũng gửi số này cho server làm hạn chót của request, nên phải lớn hơn thời gian của câu trả lời dài nhất |
+| `GEMINI_TIMEOUT` | (không đặt, mặc định `180`) | Số giây chờ Gemini mà không nhận được dữ liệu nào; quá thì thử lại như lỗi mạng rồi báo lỗi. `0` là chờ vô hạn; số âm bị từ chối khi khởi động. SDK cũng gửi số này cho server làm hạn chót của request, nên phải lớn hơn thời gian của câu trả lời dài nhất |
 
 Biến môi trường đặt trực tiếp trong terminal được ưu tiên hơn giá trị trong `.env`. Tham số dòng lệnh lại được ưu tiên hơn cả hai.
 
@@ -227,18 +227,24 @@ Bộ đo cho chat 1 agent, dùng để so sánh có kiểm soát (đổi một t
 
 | File | Vai trò |
 |---|---|
-| `bench/run.py` | Chạy 14 câu thử (T01–T14) qua `gemini_mini.py` với Gemini thật. Tham số: `--out`, `--repeat`, `--instruction`, `--model`, `--no-deepthink` |
+| `bench/BASELINE.md` | Mốc `baseline-v28`: cấu hình, kết quả, giới hạn đã biết, cách tái hiện |
+| `bench/run.py` | Chạy 14 câu thử (T01–T14) qua `gemini_mini.py` với Gemini thật. Tham số: `--out`, `--repeat`, `--start` (chạy tiếp một lần lặp bị dừng), `--instruction`, `--model`, `--no-deepthink`. Không ghi đè transcript đã có; `summary.json` được ghi sau mỗi run, kèm số lần thử lại, số lần dùng bản nháp và dòng cấu hình thật của chat |
 | `bench/RUBRIC.md` | Tiêu chí pass / partial / fail cho từng câu |
-| `bench/grade.py` | `show` in câu trả lời; `blind` trộn câu trả lời của nhiều lần chạy dưới mã ngẫu nhiên để chấm mà không biết của phương án nào; `unblind` cộng kết quả |
+| `bench/grade.py` | `show` in câu trả lời; `blind` trộn câu trả lời của nhiều lần chạy dưới mã ngẫu nhiên để chấm mà không biết của phương án nào; `unblind` cộng kết quả. Câu trả lời được gắn theo lượt: lượt không có câu trả lời hiện `(no answer)` |
 | `bench/test_offline.py` | Kiểm tra không gọi API: dùng bản nháp khi phản biện rỗng, thử lại lỗi mạng, chat không crash |
-| `bench/test_timeout.py` | Kiểm tra timeout với một server Gemini giả chạy trên máy (không gọi Google, không dùng key thật): trả lời bình thường, trả lời chậm trong hạn, server im lặng, stream đứng giữa chừng, chat tiếp tục sau timeout. Mất khoảng 50 giây |
+| `bench/test_timeout.py` | Kiểm tra timeout với một server Gemini giả chạy trên máy (không gọi Google, không dùng key thật): trả lời bình thường, trả lời chậm trong hạn, server im lặng, stream đứng giữa chừng, chat tiếp tục sau timeout, timeout âm bị từ chối. Mất khoảng 50 giây |
+| `bench/test_harness.py` | Kiểm tra harness không gọi API: gắn câu trả lời theo lượt (trên cả 235 transcript đã lưu), stream thử lại giữa chừng, `run.py` chạy được ngoài Windows, chỉ chạy lại câu khi có dòng lỗi thật, ghi `summary.json` sau mỗi run, chạy tiếp không ghi đè, từ chối file instruction không tồn tại, chạy thật `run.py` → `gemini_mini.py` → server giả. Mất khoảng 35 giây |
+| `bench/fake_gemini.py` | Server Gemini giả dùng chung cho hai script kiểm tra trên |
 | `bench/results/` | Toàn văn mọi lần chạy; `INDEX.md` ghi mỗi thư mục chạy với phiên bản prompt nào |
 
 ```powershell
 .venv\Scripts\python bench\run.py --out t12_on --repeat 20 T12
 .venv\Scripts\python bench\run.py --out t12_off --repeat 20 --no-deepthink T12
 .venv\Scripts\python bench\grade.py blind t12 t12_on t12_off --case T12
+.venv\Scripts\python bench\run.py --out t12_on --start 21 --repeat 5 T12   # thêm r21–r25 vào cùng thư mục
 ```
+
+Trên Linux/macOS thay `.venv\Scripts\python` bằng `.venv/bin/python`. Kiểm tra không gọi API: `bench/test_offline.py`, `bench/test_timeout.py`, `bench/test_harness.py`.
 
 Mỗi lần chạy deepthink tốn 2 request mỗi lượt chat (T09 có 3 lượt nên 6 request). 20 lần chạy là mức tối thiểu để so hai phương án khi tỷ lệ hỏng khoảng 1/6; 6 lần quá ít.
 
@@ -272,9 +278,11 @@ Mỗi lần chạy deepthink tốn 2 request mỗi lượt chat (T09 có 3 lư�
 12. **Áp dụng V28.0 LITE:** tạo `instruction_v28.md` (V28 + phụ lục runtime đánh số lại). Yêu cầu phản biện của deepthink và phần vai trò của 2 agent chuyển sang gọi mục theo tên vì V28 đánh số mục khác V27.4.
 13. **Stress test V28 và sửa:** so với V27.4, thấy V28 gốc không tự nêu giả định ẩn. Sửa 3 vòng (instruction, yêu cầu phản biện, xử lý lỗi rỗng và lỗi mạng), kiểm lại bằng 2 câu mới chưa dùng khi sửa, rồi đặt V28 làm mặc định.
 14. **Benchmark có kiểm soát:** đưa harness vào `bench/` với tiêu chí chấm và chấm mù; T12 chạy 20 lần với deepthink bật và tắt; sửa một dòng trong yêu cầu phản biện (ngoại lệ "short sleeper" từ 2/20 xuống 0/20); thêm timeout cho request. Cổng kiểm tra 14 câu **không đạt**: dòng sửa có vẻ khiến lượt phản biện cắt vế "trừ khi..." (T07) và bỏ phần kiểm chứng (T12). Đã gỡ dòng sửa, giữ timeout, chạy lại cổng: vẫn **không đạt**, lần này vì T09 (chỉ 1/5 lần đạt với phiên bản prompt hiện tại, lỗi đã có từ trước khi thêm timeout). Chưa gắn tag `baseline-v28`.
+15. **Đo T09 và kiểm toán harness:** quyết định đo T09 × 20 với baseline, không sửa prompt. Chấm mù 16 lần đã chạy theo luật viết trước: 5/16 pass hoặc partial (strict), lỗi có sẵn từ bản nháp ở 12/16, không có lỗi mạng, timeout hay harness. Kiểm toán harness tìm và sửa 9 lỗi (chạy được ngoài Windows, câu trả lời gắn theo lượt, `summary.json` ghi sau mỗi run, chạy tiếp không ghi đè, `GEMINI_TIMEOUT` âm…), mỗi lỗi có kiểm tra riêng; phép đo cũ không đổi. Còn r17–r20 (cần API key) rồi mới gắn tag. Xem `bench/BASELINE.md` và `bench/results/INDEX.md`.
 
 ## Hướng tiếp theo (chưa làm)
 
+- Chạy nốt T09 r17–r20 với baseline, chấm mù đủ 20, gắn tag `baseline-v28` (lệnh ở `bench/BASELINE.md`).
 - Cho agent B dùng model mạnh hơn A (`DEBATE_MODEL_B`) và so kết quả với khi cả hai dùng cùng model.
 - Lượt phản biện của deepthink dùng model mạnh hơn lượt nháp, cấu hình bằng biến `GEMINI_REVIEW_MODEL`.
 - Thử `gemini-3.5-flash` hoặc `gemini-3.8-flash` xem gói miễn phí có dùng được không.
