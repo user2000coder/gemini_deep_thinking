@@ -75,8 +75,11 @@ def parse_budget(value, model):
 
 
 def load_timeout():
-    """Seconds from GEMINI_TIMEOUT (default 180); 0 means wait forever."""
-    return float(os.getenv("GEMINI_TIMEOUT") or 180)
+    """Seconds from GEMINI_TIMEOUT (default 180); 0 means wait forever. ValueError if not a number >= 0."""
+    timeout = float(os.getenv("GEMINI_TIMEOUT") or 180)
+    if timeout < 0:  # e.g. -1, as for the thinking budget: the socket rejects it on the first call
+        raise ValueError(timeout)
+    return timeout
 
 
 def make_client(timeout):
@@ -237,7 +240,7 @@ def main():
         return
 
     print(f"{BOLD}{args.model}{RESET}  thinking budget: {budget}  deepthink: {'on' if deepthink else 'off'}"
-          f"  instruction: {source or 'none'}")
+          f"  timeout: {f'{timeout:g}s' if timeout else 'none'}  instruction: {source or 'none'}")
     print(f"{DIM}/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits{RESET}")
     while True:
         try:
