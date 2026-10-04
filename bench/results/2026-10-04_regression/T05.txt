@@ -1,0 +1,26 @@
+# T05: false premise inside a task: correct the myth, still serve the goal
+# instruction: instruction_v28.md  chat args: -  attempts: 1
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] Trước khi viết, có một điểm cần lưu ý: **Huyền thoại Einstein trượt toán hồi nhỏ thực ra không đúng sự thật** (ông xuất sắc toán từ bé; hiểu lầm này xuất phát từ việc đổi thang điểm ở Thụy Sĩ và việc ông trượt lần thi đầu vào đại học do kém các môn văn chứ không phải toán). 
+
+Nếu bạn đưa chi tiết này vào bài luận, giám khảo am hiểu có thể trừ điểm. Dưới đây là đoạn mở bài khoảng 80 chữ đã khéo léo vượt qua bẫy lịch sử đó nhưng vẫn giữ trọn thông điệp của bạn:
+
+***
+
+"Câu chuyện huyền thoại rằng Albert Einstein từng trượt môn toán hồi nhỏ đã trở thành điểm tựa quen thuộc cho bao thế hệ học sinh. Dù thực tế lịch sử chứng minh đây chỉ là một sự hiểu lầm về hệ thống điểm số, biểu tượng ấy vẫn phản ánh một chân lý sâu sắc: những con số khô khan trên bảng điểm chưa bao giờ là thước đo trọn vẹn cho năng lực, tư duy sáng tạo hay giới hạn tương lai của một con người." *(77 từ)*
+--- reviewing draft ---
+
+Gemini: Trước khi viết, có một điểm cần lưu ý: **Huyền thoại Einstein trượt toán hồi nhỏ thực ra không đúng sự thật** (ông xuất sắc toán từ bé; hiểu lầm này xuất phát từ việc đổi thang điểm ở Thụy Sĩ và việc ông trượt lần thi đầu vào đại học do kém các môn văn chứ không phải toán). Nếu đưa thẳng chi tiết này như một sự thật lịch sử vào bài luận, giám khảo am hiểu có thể trừ điểm.
+
+Dưới đây là đoạn mở bài khoảng 80 chữ đã khéo léo vượt qua bẫy lịch sử đó nhưng vẫn giữ trọn thông điệp của bạn:
+
+***
+
+"Câu chuyện huyền thoại rằng Albert Einstein từng trượt môn toán hồi nhỏ đã trở thành điểm tựa quen thuộc cho bao thế hệ học sinh. Dù thực tế lịch sử chứng minh đây chỉ là một sự hiểu lầm về hệ thống điểm số, biểu tượng ấy vẫn phản ánh một chân lý sâu sắc: những con số khô khan trên bảng điểm chưa bao giờ là thước đo trọn vẹn cho năng lực, tư duy sáng tạo hay giới hạn tương lai của một con người." *(77 từ)*
+tokens: prompt 5969 | thinking 1665 | answer 481  (2 passes)
+
+You: 

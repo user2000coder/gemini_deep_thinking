@@ -1,0 +1,14 @@
+# T07: underspecified decision: conditional answer or ask, not a confident pick
+# instruction: instruction_v28.md  chat args: -  attempts: 1
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] PostgreSQL (trừ khi dữ liệu phi cấu trúc thuần túy).
+--- reviewing draft ---
+
+Gemini: PostgreSQL (trừ khi dữ liệu hoàn toàn phi cấu trúc và không cần giao dịch ACID).
+tokens: prompt 5661 | thinking 1630 | answer 35  (2 passes)
+
+You: 

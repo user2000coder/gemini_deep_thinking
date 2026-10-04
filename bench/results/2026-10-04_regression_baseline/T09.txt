@@ -1,0 +1,91 @@
+# T09: multi-turn: constraint + rejected approach must not be revived
+# instruction: instruction_v28.md  chat args: -  attempts: 1
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] 3 phương án lưu session không dùng Redis:
+
+1. **JWT (Cookie Stateless)**
+   * **Cách hoạt động:** Lưu dữ liệu session đã mã hóa (signed/encrypted) trực tiếp ở phía client.
+   * **Ưu điểm:** Không tốn tài nguyên server, dễ scale ngang.
+   * **Nhược điểm:** Khó thu hồi (revoke) lập tức khi cần thiết nếu chưa hết hạn.
+
+2. **Database chính (SQL / NoSQL sẵn có)**
+   * **Cách hoạt động:** Lưu bảng `sessions` (Session ID → User Data) trong chính PostgreSQL, MySQL hoặc MongoDB của hệ thống.
+   * **Ưu điểm:** Tận dụng hạ tầng sẵn có, dễ kiểm soát, dễ xóa/thu hồi session.
+   * **Nhược điểm:** Tăng I/O và tải cho DB chính ở lượng truy cập lớn.
+
+3. **In-Memory (RAM của app server) + Sticky Sessions**
+   * **Cách hoạt động:** Lưu session trực tiếp vào RAM của ứng dụng (ví dụ: `node-cache`), kết hợp Load Balancer định tuyến user về đúng 1 server cố định (sticky session).
+   * **Ưu điểm:** Tốc độ cực nhanh, không cần cài thêm dịch vụ ngoài.
+   * **Nhược điểm:** Mất session khi server restart; khó scale nếu không cấu hình load balancer tốt.
+--- reviewing draft ---
+
+Gemini: 3 phương án lưu session không dùng Redis, kèm theo điều kiện quyết định (giả định ngầm) cho từng phương án:
+
+1. **JWT (Cookie Stateless)**
+   * **Cách hoạt động:** Lưu dữ liệu session đã mã hóa trực tiếp ở phía client.
+   * **Ưu điểm:** Không tốn tài nguyên server, dễ scale ngang.
+   * **Nhược điểm & Giả định:** Khó thu hồi (revoke) lập tức. 
+   * *Điều kiện quyết định:* Chỉ phù hợp nếu ứng dụng **không** yêu cầu tính năng buộc đăng xuất (force logout / revoke token) ngay lập tức. Nếu bắt buộc phải revoke, bạn sẽ phải dựng thêm database lưu blacklist, làm mất đi ý nghĩa stateless.
+
+2. **Database chính (SQL / NoSQL)**
+   * **Cách hoạt động:** Lưu bảng `sessions` trực tiếp trong database sẵn có của hệ thống.
+   * **Ưu điểm:** Tận dụng hạ tầng hiện tại, dễ kiểm soát, dễ xóa/thu hồi session.
+   * **Nhược điểm & Giả định:** Tăng I/O cho database.
+   * *Điều kiện quyết định:* Chỉ phù hợp nếu lượng truy cập ở mức database chịu tải tốt, hoặc hệ thống không gọi check session ở *mọi* API request. Nếu traffic cực lớn, database sẽ thành nghẽn cổ chai (bottleneck).
+
+3. **In-Memory (RAM app server) + Sticky Sessions**
+   * **Cách hoạt động:** Lưu session vào RAM của ứng dụng, kết hợp Load Balancer định tuyến user về đúng 1 server cố định.
+   * **Ưu điểm:** Tốc độ cực nhanh, không cần dịch vụ ngoài.
+   * **Nhược điểm & Giả định:** Mất session khi server restart hoặc scale-in.
+   * *Điều kiện quyết định:* Chỉ phù hợp nếu hạ tầng dùng server tĩnh (không dùng Kubernetes auto-scaling co giãn liên tục) và việc user bị mất session khi server sập không phải là rủi ro nghiêm trọng.
+tokens: prompt 5969 | thinking 1989 | answer 727  (2 passes)
+
+You: 
+[draft] Nên chọn **Database chính (SQL / NoSQL)**.
+
+**Lý do cốt lõi:** Yêu cầu **thu hồi ngay lập tức** kết hợp với việc **không được dùng Redis**.
+
+* **Nhược điểm chí mạng của In-Memory + Sticky Sessions khi không có Redis:** 
+  Nếu hệ thống của bạn có từ 2 app server trở lên, việc thu hồi session trên In-Memory sẽ cực kỳ khó đồng bộ. Khi bạn xóa session ở Server A, nhưng user có tab khác (hoặc bị Load Balancer đẩy) sang Server B, Server B vẫn thấy session đó còn hạn trong RAM và cho phép truy cập. Muốn đồng bộ RAM giữa các server mà không có Redis, bạn sẽ phải tự viết cơ chế pub/sub rất phức tạp và dễ lỗi.
+* **Tại sao Database chính thắng:**
+  Database đóng vai trò là *Single Source of Truth*. Khi cần thu hồi, bạn chỉ cần `DELETE` hoặc đổi cờ `is_revoked = true` trong DB. Ngay lập tức ở request tiếp theo, dù user gọi vào bất kỳ server nào, hệ thống cũng check ra session đã bị hủy.
+
+**Điều kiện đánh đổi (Trade-off) cần lưu ý:**
+* Tải của Database sẽ tăng vì mọi request (hoặc các request quan trọng) phải query vào DB để check session.
+* **Cách khắc phục:** Đảm bảo cột session/token được ** đánh index (Indexed)**. Nếu traffic quá lớn, có thể tối ưu bằng cách cho phép session sống trong DB nhưng cache ngắn hạn (ví dụ 30-60 giây) ở memory của app server, chấp nhận rủi ro user bị trễ tối đa 60 giây khi bị force logout.
+--- reviewing draft ---
+
+Gemini: Nên chọn **Database chính (SQL / NoSQL)**, với điều kiện hệ thống của bạn có từ 2 app server trở lên hoặc cần độ bền vững cao.
+
+**Lý do chọn Database chính:**
+* **Đồng bộ thu hồi (Revocation):** Yêu cầu thu hồi ngay lập tức kết hợp với việc không được dùng Redis khiến phương án In-Memory + Sticky Sessions gặp rủi ro lớn. Nếu bạn có nhiều app server, khi session bị hủy trên Server A, các request sau đó nếu bị Load Balancer đẩy sang Server B vẫn sẽ hợp lệ vì RAM của Server B không biết session đã bị xóa (trừ khi bạn tự viết cơ chế đồng bộ phức tạp). Database đóng vai trò là Single Source of Truth, giải quyết triệt để vấn đề này.
+
+**Giả định ngầm và điều kiện quyết định:**
+* **Nếu hệ thống chạy nhiều server (Multi-instance):** Bắt buộc phải chọn **Database chính**.
+* **Nếu hệ thống chỉ chạy đúng 1 server duy nhất (Single instance):** Bạn có thể chọn **In-Memory** để đạt hiệu năng tối đa và không làm tăng tải DB. Tuy nhiên, đánh đổi là mất toàn bộ session nếu server restart.
+* **Trade-off của Database:** Query kiểm tra session ở mỗi request sẽ làm tăng I/O cho database.
+  * *Cách khắc phục:* Đảm bảo cột session/token được **đánh index (Indexed)**. Nếu traffic quá lớn, bạn có thể áp dụng cache ngắn hạn (ví dụ 10-30 giây) trong RAM của app server, chấp nhận đánh đổi là user có thể mất tối đa 10-30 giây mới thực sự bị force logout trên thực tế.
+tokens: prompt 6966 | thinking 2315 | answer 727  (2 passes)
+
+You: 
+[draft] **Database kết hợp Local Cache (In-memory cache TTL ngắn, ví dụ 5-10 giây)** là phương án scale tốt nhất trong ràng buộc này.
+
+* **Lý do:** 
+  * Dùng **Database thuần túy** ở tải 10x sẽ làm nghẽn cổ chai (bottleneck) I/O.
+  * Dùng **Local Cache** ở tầng app server giúp giảm tải 90%+ số lượng query kiểm tra session xuống database.
+* **Đánh đổi:** Chấp nhận độ trễ thu hồi (revocation delay) tối đa bằng thời gian TTL của cache (5-10 giây), thay vì tức lập tức 100%.
+--- reviewing draft ---
+
+Gemini: **Database chính kết hợp Local Cache (TTL ngắn 5-10 giây)** là phương án scale tốt nhất trong ràng buộc này.
+
+* **Lý do:** Giảm hơn 90% số lượng query kiểm tra session đổ trực tiếp xuống database, ngăn chặn nghẽn cổ chai (bottleneck) I/O khi tải tăng gấp 10 lần.
+* **Điều kiện quyết định & Giả định ngầm:**
+  * Phương án này chỉ dùng được nếu hệ thống **chấp nhận độ trễ thu hồi tối đa 5-10 giây** (hy sinh một phần nhỏ yêu cầu "thu hồi tức thì" tuyệt đối để đổi lấy khả năng scale).
+  * **Nếu yêu cầu thu hồi tức thì 100% (0 giây) là bất di bất dịch:** Bạn không thể dùng Local Cache. Bắt buộc phải dùng **Database thuần túy kết hợp scale hạ tầng Database** (tối ưu Index, dùng Connection Pooling hoặc Read Replicas), vì khi có nhiều app server, chỉ có database mới giữ được tính nhất quán về trạng thái session.
+tokens: prompt 7524 | thinking 2544 | answer 378  (2 passes)
+
+You: 

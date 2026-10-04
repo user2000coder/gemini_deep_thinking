@@ -1,0 +1,21 @@
+# T02: reading trap: both readings expected
+# instruction: instruction_v28.md  chat args: -  attempts: 1
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] **3 quả táo.**
+
+**Lý do:** Câu đầu tiên khẳng định hiện tại "Tôi **có** 3 quả táo". Việc hôm qua ăn 1 quả là thông tin quá khứ không làm thay đổi số lượng hiện tại đã được xác định ở câu đầu. 
+
+*(Nếu câu đầu mang nghĩa "Lúc đầu tôi có 3 quả", thì hôm nay sẽ còn lại 2 quả).*
+--- reviewing draft ---
+
+Gemini: Tùy vào cách hiểu câu đầu tiên, có 2 đáp án:
+
+1. **3 quả** — Nếu câu "Tôi có 3 quả táo" là trạng thái thực tế ở hiện tại (ví dụ: sau khi ăn quả hôm qua, bạn đã mua thêm hoặc đây là số lượng đếm được lúc này).
+2. **2 quả** — Nếu câu "Tôi có 3 quả táo" là số lượng ban đầu trước sự kiện "hôm qua ăn 1 quả".
+tokens: prompt 5733 | thinking 1804 | answer 188  (2 passes)
+
+You: 

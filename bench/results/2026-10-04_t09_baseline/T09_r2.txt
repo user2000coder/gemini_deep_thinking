@@ -1,0 +1,98 @@
+# T09_r2: multi-turn: constraint + rejected approach must not be revived
+# instruction: instruction_v28.md  chat args: -  attempts: 1
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] 3 phương án lưu session không dùng Redis:
+
+1. **JWT (JSON Web Token) — Stateless**
+   * **Cách hoạt động:** Lưu thông tin session đã mã hóa ở Cookie/Client, server không cần lưu state.
+   * **Ưu điểm:** Scale ngang cực tốt, không tốn tài nguyên server.
+   * **Nhược điểm:** Khó thu hồi (revoke) tức thì khi cần (phải đợi hết hạn hoặc dùng blacklist phụ).
+   * **Phù hợp:** Web app phân tán, microservices, mobile API.
+
+2. **Database hiện có (PostgreSQL, MySQL, MongoDB, DynamoDB)**
+   * **Cách hoạt động:** Tạo bảng/collection `sessions`, dùng tính năng TTL (Time-To-Live) để tự động xóa session hết hạn.
+   * **Ưu điểm:** Tận dụng hạ tầng sẵn có, không phải triển khai service mới, dễ quản lý và query.
+   * **Nhược điểm:** Tăng tải cho DB chính (mỗi request đều query DB), độ trễ cao hơn in-memory.
+   * **Phù hợp:** Ứng dụng vừa và nhỏ, hạ tầng hạn chế, cần kiểm soát chặt session.
+
+3. **In-Memory của App Server + Sticky Session**
+   * **Cách hoạt động:** Lưu thẳng session vào RAM của tiến trình web app (Node.js, Go, Java...). Load balancer (Nginx/ALB) dùng Sticky Session để luôn điều hướng user về đúng 1 server.
+   * **Ưu điểm:** Tốc độ nhanh nhất, không tốn chi phí ngoài.
+   * **Nhược điểm:** Mất session nếu server sập/restart; khó scale ngang nếu không cấu hình sticky session chuẩn.
+   * **Phù hợp:** Ứng dụng đơn nhân (single-instance) hoặc scale nhỏ.
+--- reviewing draft ---
+
+Gemini: 3 phương án lưu session không dùng Redis:
+
+1. **JWT (JSON Web Token) — Stateless**
+   * **Cách hoạt động:** Mã hóa thông tin session và lưu trực tiếp ở Cookie/Client; server tự xác thực bằng chữ ký số mà không cần lưu state.
+   * **Giả định ngầm & Rủi ro:** Ứng dụng **không yêu cầu thu hồi (revoke) quyền truy cập tức thì**. Nếu hệ thống bắt buộc phải khóa session ngay lập tức khi user đổi mật khẩu hoặc bị ban, bạn phải dựng thêm bảng blacklist (mất đi tính stateless thuần túy).
+
+2. **Database hiện có (PostgreSQL, MySQL, MongoDB, DynamoDB) + TTL**
+   * **Cách hoạt động:** Lưu session vào bảng/collection trong database sẵn có của hệ thống, tận dụng tính năng TTL (Time-To-Live) để tự động xóa session hết hạn.
+   * **Giả định ngầm & Rủi ro:** Database có **đủ dung lượng và IOPS** để gánh thêm lượng truy vấn đọc/ghi session liên tục ở mỗi request. Nếu traffic cao, DB chính sẽ trở thành nút thắt cổ chai (bottleneck) gây chậm toàn hệ thống.
+
+3. **In-Memory của App Server + Sticky Session**
+   * **Cách hoạt động:** Lưu session trực tiếp vào RAM của tiến trình web app. Load balancer (Nginx/ALB) được cấu hình Sticky Session để luôn điều hướng một user về đúng một server cụ thể.
+   * **Giả định ngầm & Rủi ro:** Hạ tầng **không dùng auto-scaling thay đổi số lượng server liên tục** và hệ thống chấp nhận mất session khi server restart. Nếu server sập hoặc pod bị scale-in, user sẽ bị văng ra khỏi phiên làm việc.
+tokens: prompt 6069 | thinking 1735 | answer 773  (2 passes)
+
+You: 
+[draft] Chọn **Phương án 2: Database hiện có + TTL**.
+
+### Lý do chọn:
+Yêu cầu **thu hồi session ngay lập tức** làm **Phương án 3 (In-Memory + Sticky Session)** trở nên rủi ro và phức tạp trong môi trường đa server:
+* Nếu app của bạn chạy từ 2 instance trở lên, khi bạn muốn thu hồi session (ví dụ: user đổi mật khẩu), bạn phải xóa dữ liệu trong RAM của *server hiện tại*. Nhưng nếu user đó bị điều hướng sang server khác (hoặc failover), server kia vẫn còn session cũ trong RAM. 
+* Để khắc phục, bạn sẽ phải tự dựng cơ chế đồng bộ (broadcast/pub-sub) giữa các server — vô tình biến app của bạn thành một "Redis tự chế" rất dễ lỗi.
+
+**Database (PostgreSQL/MySQL/MongoDB)** giải quyết việc này đơn giản hơn: khi cần thu hồi, chỉ cần `DELETE` hoặc update `is_active = false` vào bảng session. Mọi server đọc từ DB sẽ thấy ngay lập tức.
+
+### Trade-off & Lưu ý quan trọng (Hidden Assumption):
+* **Nút thắt hiệu năng (DB Load):** Nếu mỗi request đều phải query DB để kiểm tra session, DB của bạn sẽ chịu tải lớn. 
+* **Cách khắc phục:** Kết hợp **DB làm nguồn chân lý (Source of Truth) cho việc thu hồi**, nhưng kết hợp với token có thời gian sống ngắn (short-lived token) hoặc cache ngắn hạn ở tầng app để giảm bớt số lần query DB trực tiếp.
+--- reviewing draft ---
+
+Gemini: Chọn **Database hiện có + TTL**.
+
+### Lý do cốt lõi:
+Yêu cầu **thu hồi session ngay lập tức** kết hợp với môi trường ứng dụng thực tế (thường chạy từ 2 instance/server trở lên) khiến **In-Memory + Sticky Session** phát sinh lỗi nghiêm trọng:
+* Khi bạn cần thu hồi session (ví dụ: user đổi mật khẩu), bạn chỉ xóa được dữ liệu trong RAM của server hiện tại. Nếu user đó bị điều hướng sang server khác, server kia vẫn giữ session cũ.
+* Để khắc phục, bạn buộc phải tự viết cơ chế đồng bộ (broadcast/pub-sub) giữa các server — vô tình biến ứng dụng thành một hệ thống "Redis tự chế" rất phức tạp và dễ bug.
+
+**Database (PostgreSQL, MySQL, MongoDB, DynamoDB)** giải quyết việc này tự nhiên: Database đóng vai trò là nguồn chân lý duy nhất (Source of Truth). Khi cần thu hồi, chỉ cần `DELETE` hoặc cập nhật trạng thái, mọi server đọc từ DB sẽ nhận kết quả ngay lập tức.
+
+---
+
+### Điều kiện quyết định (Hidden Assumption cần lưu ý):
+
+* **Nếu hệ thống của bạn chạy NHIỀU server (multi-instance):** 
+  Phải chọn **Database + TTL**. Phương án In-Memory bị loại hoàn toàn do vấn đề đồng bộ state.
+* **Nếu hệ thống của bạn CHỈ CHẠY MỘT server duy nhất (single-instance):** 
+  Lúc này **In-Memory** lại là lựa chọn tốt hơn (nhanh, gọn, thu hồi tức thì bằng cách xóa RAM). Tuy nhiên, cần đánh đổi việc session sẽ biến mất nếu server restart và app không thể scale ngang (horizontal scaling) trong tương lai.
+
+### Trade-off và cách giảm thiểu tải cho Database:
+* **Rủi ro:** Nếu mỗi request đều phải query DB để kiểm tra session, DB sẽ chịu áp lực lớn (IOPS cao).
+* **Cách khắc phục:** Kết hợp **Database làm nguồn thu hồi**, nhưng ở tầng app, bạn lưu một bản cache cục bộ siêu ngắn hạn (ví dụ: cache session trong RAM app 5-10 giây) hoặc dùng token phụ trợ để giảm bớt số lần query DB trực tiếp mà vẫn đảm bảo độ trễ thu hồi ở mức chấp nhận được.
+tokens: prompt 6826 | thinking 1850 | answer 823  (2 passes)
+
+You: 
+[draft] **JWT kết hợp Token Version lưu trong Database (hoặc NoSQL như DynamoDB).**
+
+*Lý do:*
+* **Scale tốt:** Thay vì query và update toàn bộ object session nặng nề ở mỗi request (gây nghẽn DB), app chỉ cần check một trường `token_version` (số nguyên) siêu nhẹ.
+* **Thu hồi tức thì:** Khi cần hủy session (đổi mật khẩu, ban user), chỉ cần tăng `token_version` trong DB lên 1 đơn vị → mọi token cũ mất hiệu lực lập tức.
+* **Giảm tải:** Có thể cache `token_version` ở RAM của app trong vòng vài giây để giảm 90% số lượng query xuống DB.
+--- reviewing draft ---
+
+Gemini: **JWT kết hợp Token Version lưu trong Database (hoặc DynamoDB).**
+
+*Lý do:* Khác với JWT thuần túy (đã loại trước đó), phương án này dùng JWT để mang payload ở client giúp giảm tải I/O cho DB, nhưng vẫn giữ một trường `token_version` siêu nhẹ trong DB để đảm bảo thu hồi tức thì khi cần.
+
+*Giả định ngầm quyết định:* Để scale 10x thành công, bạn **bắt buộc phải cache `token_version` ở RAM của app trong vài giây** hoặc dùng NoSQL (như DynamoDB). Nếu hệ thống dùng relational DB truyền thống và query trực tiếp mỗi request mà không cache, DB vẫn sẽ bị nghẽn khi tải tăng 10 lần.
+tokens: prompt 7677 | thinking 2260 | answer 314  (2 passes)
+
+You: 

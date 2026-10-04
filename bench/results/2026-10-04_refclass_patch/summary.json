@@ -1,0 +1,246 @@
+{
+  "instruction": "instruction_v28.md",
+  "chat_args": [],
+  "runs": [
+    {
+      "id": "T03_r1",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 17.6,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T03_r2",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 19.1,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T03_r3",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 14.4,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T03_r4",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 16.4,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T03_r5",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 18.8,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T03_r6",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 21.9,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T03_r7",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 19.2,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T03_r8",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 18.4,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T03_r9",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 22.9,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T03_r10",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 18.3,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T13_r1",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 25.5,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T13_r2",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 22.1,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T13_r3",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 23.6,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T13_r4",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 22.9,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T13_r5",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 23.2,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T13_r6",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 26.0,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T13_r7",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 22.8,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T13_r8",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 22.4,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T13_r9",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 23.0,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T13_r10",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 24.5,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T14_r1",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 18.8,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T14_r2",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 23.3,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T14_r3",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 20.6,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T14_r4",
+      "turns": 1,
+      "answered": 0,
+      "seconds": 414.8,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T14_r5",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 19.4,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T14_r6",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 17.9,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T14_r7",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 21.1,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T14_r8",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 20.7,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T14_r9",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 18.6,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T14_r10",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 18.2,
+      "attempts": 1,
+      "errors": []
+    }
+  ]
+}

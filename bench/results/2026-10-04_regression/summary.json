@@ -1,0 +1,118 @@
+{
+  "instruction": "instruction_v28.md",
+  "chat_args": [],
+  "runs": [
+    {
+      "id": "T01",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 5.4,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T02",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 14.1,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T03",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 17.1,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T04",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 11.0,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T05",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 12.2,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T06",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 10.0,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T07",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 7.5,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T08",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 17.5,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T09",
+      "turns": 3,
+      "answered": 3,
+      "seconds": 35.5,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T10",
+      "turns": 2,
+      "answered": 2,
+      "seconds": 21.9,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T11",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 12.9,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T12",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 17.9,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T13",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 19.8,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T14",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 18.4,
+      "attempts": 1,
+      "errors": []
+    }
+  ]
+}

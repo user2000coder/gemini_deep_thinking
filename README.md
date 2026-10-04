@@ -41,6 +41,7 @@ GEMINI_API_KEY=AIza...
 | `GEMINI_THINKING_BUDGET` | `max` | Số token tối đa model được dùng để suy nghĩ. `max` là mức cao nhất (24576), `-1` để model tự quyết, `0` là tắt suy nghĩ, hoặc ghi một con số cụ thể |
 | `GEMINI_INSTRUCTION` | `instruction_v28.md` | File system prompt, đường dẫn tính từ thư mục dự án. Đổi thành `instruction.md` để quay lại V27.4 |
 | `GEMINI_DEEPTHINK` | `on` | `on`: mỗi câu chạy 2 lượt (nháp → phản biện → trả lời). `off`: 1 lượt |
+| `GEMINI_TIMEOUT` | (không đặt, mặc định `180`) | Số giây chờ Gemini mà không nhận được dữ liệu nào; quá thì thử lại như lỗi mạng rồi báo lỗi. `0` là chờ vô hạn. SDK cũng gửi số này cho server làm hạn chót của request, nên phải lớn hơn thời gian của câu trả lời dài nhất |
 
 Biến môi trường đặt trực tiếp trong terminal được ưu tiên hơn giá trị trong `.env`. Tham số dòng lệnh lại được ưu tiên hơn cả hai.
 
@@ -210,7 +211,8 @@ Những thứ đạt ổn định ở mọi lần chạy: không nói là đã t
 Lỗi còn lại, xảy ra thỉnh thoảng, không sửa tiếp bằng prompt vì prompt đã dặn đúng điều đó:
 
 - Một lần đề xuất đọc session từ read replica và cho rằng vẫn thu hồi ngay được; replica sao chép chậm hơn master (replication lag) nên điều đó không đúng. Đây là lỗi hiểu biết kỹ thuật của model bản lite.
-- Hai lần lượt phản biện cắt bằng chứng đúng có trong bản nháp (thiếu ngủ làm giảm khả năng tập trung), một trong hai lần còn thêm nhận định sai. Ở cả 3 lần hỏng câu này (kể cả trước khi sửa), bản nháp có bằng chứng và bản cuối bị mất, nên lỗi nằm ở lượt phản biện của deepthink.
+- Hai lần lượt phản biện cắt bằng chứng đúng có trong bản nháp (thiếu ngủ làm giảm khả năng tập trung), một trong hai lần còn thêm nhận định sai. So sánh có kiểm soát sau đó (T12 × 20 với deepthink bật và × 20 với deepthink tắt, chấm mù, xem `bench/results/INDEX.md`): tắt deepthink **không** sửa được lỗi này. Tỷ lệ mất bằng chứng hai nhánh như nhau (1/20), còn LaTeX tăng từ 1/20 lên 6/20. Nhưng cả 2 lần câu trả lời đưa ra ngoại lệ "người ngủ ngắn bẩm sinh" đều do lượt phản biện thêm vào, vì dòng hỏi "số liệu chung có áp dụng cho trường hợp này không" bị áp cả vào sinh lý học đã được xác lập. Sau khi thêm vào dòng đó ý "không bịa ngoại lệ cá nhân để làm yếu một kết luận khoa học đã được xác lập vững" (T12 × 20, T03/T13/T14 × 10): ngoại lệ từ 2/20 xuống 0/20, giữ bằng chứng đầy đủ từ 16/20 lên 19/20, T03/T13/T14 vẫn 10/10. Với 20 lần chạy, khác biệt này chưa đủ để gọi là đã chứng minh. Nhưng cổng kiểm tra 14 câu sau đó bắt được hai tác dụng phụ, đều do lượt phản biện gây ra theo đúng câu chữ của dòng mới: cắt vế "trừ khi..." của T07 và bỏ phần kiểm chứng của T12 (mỗi lỗi một lần).
+- Một lần lượt phản biện treo 415 giây vì request không có timeout. Đã sửa bằng `GEMINI_TIMEOUT` (xem mục cấu hình), kiểm bằng `bench/test_timeout.py`.
 - Ở cả 2 lần hỏng câu session, thiết kế sai đã có sẵn trong bản nháp, nên đây là lỗi của model chứ không do lượt phản biện.
 - Chấm bằng từ khóa không đáng tin: đã có 2 lần khớp nhầm ("rất đáng chú ý", và "suy giảm" nằm trong một câu phủ định). Các số trong bảng trên đã được đọc lại bằng tay.
 - Một lần câu trả lời nhắc tới "bản nháp" (để lộ bước phản biện); sau khi sửa câu dặn trong yêu cầu phản biện, 0/14.
@@ -229,6 +231,7 @@ Bộ đo cho chat 1 agent, dùng để so sánh có kiểm soát (đổi một t
 | `bench/RUBRIC.md` | Tiêu chí pass / partial / fail cho từng câu |
 | `bench/grade.py` | `show` in câu trả lời; `blind` trộn câu trả lời của nhiều lần chạy dưới mã ngẫu nhiên để chấm mà không biết của phương án nào; `unblind` cộng kết quả |
 | `bench/test_offline.py` | Kiểm tra không gọi API: dùng bản nháp khi phản biện rỗng, thử lại lỗi mạng, chat không crash |
+| `bench/test_timeout.py` | Kiểm tra timeout với một server Gemini giả chạy trên máy (không gọi Google, không dùng key thật): trả lời bình thường, trả lời chậm trong hạn, server im lặng, stream đứng giữa chừng, chat tiếp tục sau timeout. Mất khoảng 50 giây |
 | `bench/results/` | Toàn văn mọi lần chạy; `INDEX.md` ghi mỗi thư mục chạy với phiên bản prompt nào |
 
 ```powershell
@@ -247,7 +250,7 @@ Mỗi lần chạy deepthink tốn 2 request mỗi lượt chat (T09 có 3 lư�
 - **Làm đúng khung không có nghĩa là suy luận đúng.** V27.4 và V28 giúp model trình bày theo đúng cấu trúc, nhưng với bài kỹ thuật sâu, model bản lite vẫn sai ở những chỗ cốt lõi. Lượt phản biện dùng cùng model nên không bắt được lỗi tiền đề. Câu trả lời cho bài khó cần được người kiểm tra lại.
 - Tóm tắt suy nghĩ thường bằng tiếng Anh (thấy ở 2.5-flash). Đây là cách Google làm, không chỉnh được.
 - Không có web search hay công cụ nào. Đây là lựa chọn có chủ ý.
-- Lỗi phía server (5xx) và lỗi mạng (mất kết nối, lỗi SSL) được tự động thử lại 3 lần, chờ 5 giây rồi 10 giây. Vẫn lỗi thì chat báo lỗi và giữ nguyên lịch sử. Lỗi do key hoặc quota (4xx) được báo ngay.
+- Lỗi phía server (5xx), lỗi mạng (mất kết nối, lỗi SSL) và timeout (`GEMINI_TIMEOUT`) được tự động thử lại 3 lần, chờ 5 giây rồi 10 giây. Vẫn lỗi thì chat báo lỗi và giữ nguyên lịch sử; hỏi một câu thì thoát kèm thông báo lỗi. Lỗi do key hoặc quota (4xx) được báo ngay. Một request treo hoàn toàn mất tối đa khoảng 3 × timeout + 15 giây trước khi báo lỗi.
 - Lượt phản biện của deepthink có lợi có hại: có lúc biến câu trả lời cụt thành câu trả lời dùng được, có lúc cắt mất phần đúng của bản nháp (xem kết quả stress test).
 
 ## Quá trình phát triển
@@ -268,6 +271,7 @@ Mỗi lần chạy deepthink tốn 2 request mỗi lượt chat (T09 có 3 lư�
 11. **Giao diện web:** thêm trang hỏi đáp `ui.html` và lệnh `debate.py --ui`; hai agent in hoạt động của mình ra terminal.
 12. **Áp dụng V28.0 LITE:** tạo `instruction_v28.md` (V28 + phụ lục runtime đánh số lại). Yêu cầu phản biện của deepthink và phần vai trò của 2 agent chuyển sang gọi mục theo tên vì V28 đánh số mục khác V27.4.
 13. **Stress test V28 và sửa:** so với V27.4, thấy V28 gốc không tự nêu giả định ẩn. Sửa 3 vòng (instruction, yêu cầu phản biện, xử lý lỗi rỗng và lỗi mạng), kiểm lại bằng 2 câu mới chưa dùng khi sửa, rồi đặt V28 làm mặc định.
+14. **Benchmark có kiểm soát:** đưa harness vào `bench/` với tiêu chí chấm và chấm mù; T12 chạy 20 lần với deepthink bật và tắt; sửa một dòng trong yêu cầu phản biện (ngoại lệ "short sleeper" từ 2/20 xuống 0/20); thêm timeout cho request. Cổng kiểm tra 14 câu **không đạt**: dòng sửa có vẻ khiến lượt phản biện cắt vế "trừ khi..." (T07) và bỏ phần kiểm chứng (T12). Đã gỡ dòng sửa, giữ timeout, chạy lại cổng: vẫn **không đạt**, lần này vì T09 (chỉ 1/5 lần đạt với phiên bản prompt hiện tại, lỗi đã có từ trước khi thêm timeout). Chưa gắn tag `baseline-v28`.
 
 ## Hướng tiếp theo (chưa làm)
 

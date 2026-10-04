@@ -1,0 +1,65 @@
+# T03: Bayes + hidden assumption (random screening vs symptomatic)
+# instruction: instruction_v28.md  chat args: -  attempts: 1
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] Xác suất anh bạn thực sự mắc bệnh là khoảng **1,94%** (chưa tới 2%). 
+
+Đây là một kết quả phản trực giác (do hiện tượng Base Rate Fallacy), vì xét nghiệm có độ nhạy rất cao (99%). Dưới đây là cách tính chi tiết bằng cách giả định trên một quần thể 100.000 người để dễ hình dung:
+
+1. **Số người thực sự mắc bệnh:** 
+   100.000 người x (1/1000) = **100 người mắc bệnh**.
+2. **Số người không mắc bệnh:** 
+   100.000 - 100 = **99.900 người khỏe mạnh**.
+3. **Số ca dương tính giả (người khỏe nhưng xét nghiệm dương tính):** 
+   99.900 x 5% (tỷ lệ dương tính giả) = **4.995 người**.
+4. **Số ca dương tính thật (người bệnh xét nghiệm dương tính):** 
+   100 x 99% (độ nhạy) = **99 người**.
+
+Tổng số người có kết quả dương tính trong toàn bộ quần thể là: 
+4.995 (giả) + 99 (thật) = **5.094 người**.
+
+Xác suất thực sự mắc bệnh khi có kết quả dương tính là tỷ lệ giữa số ca dương tính thật trên tổng số người dương tính:
+**99 / 5.094 ≈ 1,94%**.
+
+---
+
+### ⚠️ Điều kiện quyết định (Assumption):
+Kết quả này áp dụng với giả định anh bạn xét nghiệm sàng lọc ngẫu nhiên trong cộng đồng (tỷ lệ mắc ban đầu là 1/1000). 
+
+**Nếu anh bạn có triệu chứng rõ rệt hoặc thuộc nhóm nguy cơ cao**, tỷ lệ mắc ban đầu (prior) sẽ cao hơn nhiều so với 1/1000, khi đó xác suất thực sự mắc bệnh sau khi dương tính sẽ tăng lên rất nhiều (có thể lên tới trên 50% hoặc cao hơn tùy vào mức độ triệu chứng).
+--- reviewing draft ---
+
+Gemini: Xác suất anh bạn thực sự mắc bệnh là khoảng **1,94%** (chưa tới 2%).
+
+Mặc dù xét nghiệm có độ nhạy rất cao (99%), kết quả này thấp đến ngạc nhiên do hiện tượng nghịch lý tỷ lệ cơ sở (Base Rate Fallacy). Vì tỷ lệ người mắc bệnh trong cộng đồng quá thấp (1/1000), số lượng người khỏe mạnh xét nghiệm dương tính nhầm (dương tính giả) lại lớn hơn rất nhiều so với số bệnh nhân thực sự có kết quả dương tính.
+
+**Cách tính chi tiết (giả định trên quần thể 100.000 người):**
+
+1. **Số người thực sự mắc bệnh:** 
+   100.000 x (1/1000) = **100 người**.
+2. **Số người khỏe mạnh:** 
+   100.000 - 100 = **99.900 người**.
+3. **Số ca dương tính giả (người khỏe nhưng xét nghiệm dương tính):** 
+   99.900 x 5% (tỷ lệ dương tính giả) = **4.995 người**.
+4. **Số ca dương tính thật (người bệnh xét nghiệm dương tính):** 
+   100 x 99% (độ nhạy) = **99 người**.
+
+Tổng số người có kết quả dương tính trong toàn bộ quần thể là: 
+4.995 (giả) + 99 (thật) = **5.094 người**.
+
+Xác suất thực sự mắc bệnh khi có kết quả dương tính là tỷ lệ giữa số ca dương tính thật trên tổng số người dương tính:
+**99 / 5.094 ≈ 1,94%**.
+
+---
+
+### Điều kiện quyết định (Assumption):
+Kết quả trên chỉ áp dụng với giả định anh bạn **xét nghiệm sàng lọc ngẫu nhiên trong cộng đồng** (tỷ lệ mắc ban đầu đúng bằng mức trung bình 1/1000). 
+
+* **Nếu anh bạn có triệu chứng rõ rệt hoặc thuộc nhóm tiếp xúc gần với nguồn bệnh**, tỷ lệ mắc ban đầu (prior probability) sẽ cao hơn rất nhiều so với 1/1000. 
+* Khi đó, xác suất thực sự mắc bệnh sau khi có kết quả dương tính sẽ tăng vọt (thường vượt quá 50% hoặc cao hơn nữa, tùy thuộc vào mức độ nguy cơ thực tế của anh ấy).
+tokens: prompt 6238 | thinking 2851 | answer 1028  (2 passes)
+
+You: 

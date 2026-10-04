@@ -1,0 +1,90 @@
+# T09_r10: multi-turn: constraint + rejected approach must not be revived
+# instruction: instruction_v28.md  chat args: -  attempts: 1
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] 3 phương án lưu session không dùng Redis:
+
+1. **Relational Database (PostgreSQL / MySQL)**
+   * **Cách làm:** Lưu bảng `sessions` (session_id, user_id, expires_at, data).
+   * **Ưu điểm:** Dễ triển khai, tận dụng cơ sở dữ liệu sẵn có, không cần thêm hạ tầng mới, bền vững qua restart.
+   * **Nhược điểm:** Tăng tải cho DB chính khi traffic cao; cần job xóa session hết hạn (cleanup).
+   * **Phù hợp:** Ứng dụng quy mô vừa và nhỏ, hoặc hệ thống ưu tiên sự đơn giản, nhất quán dữ liệu.
+
+2. **Stateless JWT (JSON Web Token)**
+   * **Cách làm:** Mã hóa thông tin session vào token, lưu ở client (HttpOnly Cookie) và tự xác thực bằng chữ ký số ở server.
+   * **Ưu điểm:** Không tốn tài nguyên server để lưu trạng thái, dễ scale ngang.
+   * **Nhược điểm:** Khó thu hồi (revoke) ngay lập tức khi cần (trừ khi kết hợp blacklist); kích thước payload bị giới hạn.
+   * **Phù hợp:** Kiến trúc microservices hoặc SPA (Single Page Application) tách biệt frontend/backend.
+
+3. **Memcached**
+   * **Cách làm:** Lưu session dạng key-value trong bộ nhớ RAM, tương tự Redis nhưng đơn giản hơn.
+   * **Ưu điểm:** Tốc độ đọc/ghi cực nhanh, nhẹ, đa luồng tốt.
+   * **Nhược điểm:** Mất dữ liệu khi restart server (nếu không cấu hình persistence); chỉ hỗ trợ cấu trúc dữ liệu đơn giản (string).
+   * **Phù hợp:** Nếu công ty cấm Redis vì lý do bản quyền/chính sách đặc thù nhưng vẫn cho phép dùng các in-memory cache khác. (Cần kiểm tra lại policy công ty về Memcached).
+--- reviewing draft ---
+
+Gemini: 3 phương án lưu session không dùng Redis:
+
+1. **Relational Database (PostgreSQL / MySQL)**
+   * **Cách làm:** Lưu bảng `sessions` (session_id, user_id, expires_at, data) trực tiếp trong cơ sở dữ liệu chính của ứng dụng.
+   * **Ưu điểm:** Không cần thêm hạ tầng mới, tận dụng sẵn tính năng ACID và cơ chế backup/persistence.
+   * **Nhược điểm:** Tăng tải I/O cho DB chính khi traffic cao; cần chạy background job định kỳ để xóa session hết hạn.
+   * **Phù hợp:** Ứng dụng quy mô vừa và nhỏ, hoặc hệ thống ưu tiên tính đơn giản và nhất quán dữ liệu.
+
+2. **Stateless JWT (JSON Web Token)**
+   * **Cách làm:** Mã hóa thông tin session thành token, lưu ở client (HttpOnly Cookie) và xác thực bằng chữ ký số (signature) ở mỗi request.
+   * **Ưu điểm:** Server không phải lưu trạng thái (stateless), dễ dàng scale ngang.
+   * **Nhược điểm:** Khó thu hồi (revoke) tức thì khi cần thiết (trừ khi có cơ chế blacklist phụ trợ); kích thước payload bị giới hạn.
+   * **Phù hợp:** Kiến trúc API-driven, microservices hoặc SPA tách biệt frontend/backend.
+
+3. **Memcached** *(Giả định: Công ty cấm Redis do vấn đề bản quyền/chính sách đặc thù của Redis, nhưng vẫn cho phép các in-memory cache mã nguồn mở truyền thống).*
+   * **Cách làm:** Lưu session dạng key-value trong RAM, tương tự mô hình của Redis nhưng gọn nhẹ hơn.
+   * **Ưu điểm:** Tốc độ đọc/ghi cực nhanh, giải quyết được bài toán hiệu năng giống Redis.
+   * **Nhược điểm:** Mất toàn bộ session khi service restart (nếu không cấu hình persistence); chỉ hỗ trợ cấu trúc dữ liệu dạng string đơn giản. 
+   * *Lưu ý:* Nếu công ty cấm Redis vì lý do **vận hành hạ tầng** (không muốn quản lý thêm service stateful nào ngoài DB), phương án này cũng sẽ bị từ chối; khi đó nên thay bằng **Sticky Sessions** tại Load Balancer.
+tokens: prompt 6090 | thinking 2284 | answer 901  (2 passes)
+
+You: 
+[draft] Chọn **Relational Database (PostgreSQL/MySQL)**.
+
+**Lý do:**
+
+1. **Đáp ứng hoàn hảo yêu cầu thu hồi ngay lập tức:** Khi user logout hoặc bị khóa session, chỉ cần chạy một câu lệnh `DELETE` hoặc `UPDATE status = revoked` trong DB. Lệnh này có hiệu lực ngay lập tức trên mọi server ở request tiếp theo.
+2. **Không tốn thêm hạ tầng mới:** Ứng dụng web nào cũng có sẵn DB. Dùng luôn bảng `sessions` giúp tránh việc phải xin phép, cài đặt và vận hành một service in-memory khác (giảm rủi ro bị từ gián tiếp do chính sách tương tự Redis).
+3. **Độ phức tạp thấp:** Phù hợp tuyệt đối với giai đoạn đầu và quy mô vừa. Modern DB xử lý rất tốt các truy vấn tra cứu theo khóa chính (`session_id`) nếu được đánh index đúng cách.
+
+**Khi nào nên chuyển sang Memcached?**
+Chỉ khi traffic tăng rất cao (hàng chục nghìn request/giây) khiến bảng session làm nghẽn I/O của DB chính, và công ty chính thức cho phép Memcached. Nếu chưa đạt ngưỡng đó, hãy giữ mọi thứ đơn giản với Relational DB.
+--- reviewing draft ---
+
+Gemini: Chọn **Relational Database (PostgreSQL / MySQL)**.
+
+**Lý do:**
+1. **Đáp ứng hoàn hảo yêu cầu thu hồi ngay lập tức:** Khi cần logout hoặc khóa session, chỉ cần chạy câu lệnh `DELETE` hoặc `UPDATE` trên bảng session. Lệnh này có hiệu lực ngay lập tức ở request tiếp theo trên mọi server.
+2. **An toàn về chính sách:** Vì công ty đã cấm Redis (thường do không muốn vận hành thêm service in-memory stateful), việc tận dụng luôn cơ sở dữ liệu quan hệ sẵn có giúp tránh rủi ro vi phạm chính sách ngầm về hạ tầng.
+3. **Đơn giản hóa kiến trúc:** Không cần thêm service mới, dễ backup và quản lý tính nhất quán dữ liệu ở quy mô vừa và nhỏ.
+
+**Điều kiện quyết định (Assumption & Trade-off):**
+* Lựa chọn này giả định rằng **Memcached cũng bị từ chối** theo chính sách cấm Redis (vì cùng bản chất là in-memory cache). Nếu công ty cho phép Memcached và ứng dụng của bạn có traffic lớn, Memcached sẽ là lựa chọn tốt hơn để tránh làm nghẽn I/O của DB chính.
+* Nếu traffic tăng cao trong tương lai và DB bắt đầu quá tải vì phải check session liên tục, bạn sẽ cần xin phép ngoại lệ để dùng in-memory cache hoặc chuyển sang giải pháp Sticky Sessions tại Load Balancer.
+tokens: prompt 6974 | thinking 1765 | answer 567  (2 passes)
+
+You: 
+[draft] Khi tải tăng 10x, phương án scale tốt nhất tùy thuộc vào giới hạn của công ty:
+
+1. **Memcached** (nếu công ty chỉ cấm riêng Redis do bản quyền): Scale cực tốt nhờ tốc độ RAM, giải quyết triệt để nghẽn I/O của Database.
+2. **Sticky Sessions tại Load Balancer** (nếu cấm mọi In-Memory Cache): Lưu session trên RAM của app server, Load Balancer giữ user ở đúng server cũ. Scale ngang dễ dàng theo số server mà không cần thêm hạ tầng trung gian.
+--- reviewing draft ---
+
+Gemini: Khi tải tăng 10x, phương án scale tốt nhất phụ thuộc vào chính sách in-memory cache của công ty:
+
+1. **Memcached** (nếu chỉ cấm riêng Redis): **Scale tốt nhất**. Giữ được tốc độ của in-memory (tránh nghẽn I/O cho Database ở mức tải lớn) và hỗ trợ xóa/thu hồi session ngay lập tức qua lệnh `delete`.
+2. **Sticky Sessions tại Load Balancer** (nếu cấm mọi In-Memory Cache): **Scale tạm ổn nhưng có hạn chế**. Lưu session trên RAM của app server, scale ngang bằng cách thêm server. Tuy nhiên, khi tải lớn dễ gặp rủi ro lệch tải (hotspot) và mất session nếu app server khởi động lại hoặc sập.
+
+*(Assumption: Relational DB từ phương án trước sẽ bắt đầu quá tải I/O khi traffic tăng 10x, nên cần chuyển sang Memcached hoặc Sticky Sessions).*
+tokens: prompt 7479 | thinking 2062 | answer 322  (2 passes)
+
+You: 

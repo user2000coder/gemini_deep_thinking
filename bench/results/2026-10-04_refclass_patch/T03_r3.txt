@@ -1,0 +1,52 @@
+# T03_r3: Bayes + hidden assumption (random screening vs symptomatic)
+# instruction: instruction_v28.md  chat args: -  attempts: 1
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] Xác suất anh bạn thực sự mắc bệnh là **khoảng 1,94%** (chưa tới 2%).
+
+Mặc dù xét nghiệm có độ nhạy rất cao (99%), nhưng vì căn cứ vào tỷ lệ bệnh trong dân số quá thấp (1/1000), số lượng người khỏe mạnh bị dương tính giả (dù tỷ lệ chỉ 5%) lại lớn hơn rất nhiều so với số người mắc bệnh thật.
+
+### Cách tính dễ hiểu (giả sử với 100.000 người):
+* **Số người thực sự mắc bệnh:** 100 người (tỷ lệ 1/1000).
+  * Trong số này, xét nghiệm đúng (dương tính thật): 100 x 99% = **99 người**.
+* **Số người không mắc bệnh:** 99.900 người.
+  * Trong số này, xét nghiệm nhầm (dương tính giả): 99.900 x 5% = **4.995 người**.
+* **Tổng số người có kết quả dương tính:** 99 + 4.995 = **5.094 người**.
+
+**Xác suất thực tế:** 
+99 (người bệnh thật) / 5.094 (tổng số dương tính) ≈ **1,94%**.
+
+---
+
+### Giả định quan trọng cần lưu ý:
+Kết quả trên dựa trên giả định anh bạn là một **cá nhân ngẫu nhiên trong dân số nói chung** (tỷ lệ mắc ban đầu là 1/1000). 
+
+Nếu anh bạn thuộc **nhóm nguy cơ cao** (ví dụ: đã có triệu chứng rõ rệt, hoặc tiếp xúc gần với nguồn bệnh), tỷ lệ mắc ban đầu (prior probability) sẽ cao hơn nhiều so với 1/1000, khi đó xác suất thực sự mắc bệnh sau khi xét nghiệm dương tính sẽ **cao hơn rất nhiều** 1,94%.
+--- reviewing draft ---
+
+Gemini: Xác suất anh bạn thực sự mắc bệnh là **khoảng 1,94%** (chưa tới 2%).
+
+Mặc dù xét nghiệm có độ nhạy rất cao (99%), nhưng vì tỷ lệ bệnh trong dân số chung quá thấp (1/1000), số lượng người khỏe mạnh nhận kết quả dương tính giả (5% của một quần thể lớn) lại áp đảo hoàn toàn số người mắc bệnh thật.
+
+### Cách tính chi tiết (giả định trên quy mô 100.000 người):
+* **Số người thực sự mắc bệnh:** 100 người (tỷ lệ 1/1000).
+  * Trong số này, xét nghiệm đúng (dương tính thật): 100 x 99% = **99 người**.
+* **Số người không mắc bệnh:** 99.900 người.
+  * Trong số này, xét nghiệm nhầm (dương tính giả): 99.900 x 5% = **4.995 người**.
+* **Tổng số người có kết quả dương tính:** 99 + 4.995 = **5.094 người**.
+
+**Xác suất thực tế:** 
+99 (người bệnh thật) / 5.094 (tổng số dương tính) ≈ **1,94%**.
+
+---
+
+### Giả định quan trọng cần lưu ý:
+Kết quả trên dựa trên giả định anh bạn là một **cá nhân chọn ngẫu nhiên trong dân số nói chung** (với tỷ lệ mắc ban đầu là 1/1000). 
+
+Nếu anh bạn đi xét nghiệm vì **có triệu chứng** hoặc thuộc **nhóm nguy cơ cao**, tỷ lệ mắc ban đầu (prior probability) sẽ cao hơn nhiều so với 1/1000. Khi đó, xác suất thực sự mắc bệnh sau khi có kết quả dương tính cũng sẽ **cao hơn rất nhiều** mức 1,94%.
+tokens: prompt 6198 | thinking 2145 | answer 870  (2 passes)
+
+You: 

@@ -1,0 +1,120 @@
+{
+  "instruction": "instruction_v28.md",
+  "chat_args": [],
+  "runs": [
+    {
+      "id": "T01",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 6.8,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T02",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 10.7,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T03",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 16.2,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T04",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 12.5,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T05",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 30.1,
+      "attempts": 1,
+      "errors": [
+        "(network error ConnectError - retrying in 5s, attempt 2/3)"
+      ]
+    },
+    {
+      "id": "T06",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 8.8,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T07",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 9.8,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T08",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 18.3,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T09",
+      "turns": 3,
+      "answered": 3,
+      "seconds": 44.1,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T10",
+      "turns": 2,
+      "answered": 2,
+      "seconds": 18.8,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T11",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 13.4,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T12",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 15.9,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T13",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 19.0,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T14",
+      "turns": 1,
+      "answered": 1,
+      "seconds": 17.6,
+      "attempts": 1,
+      "errors": []
+    }
+  ]
+}

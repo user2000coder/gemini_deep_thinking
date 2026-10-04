@@ -1,0 +1,81 @@
+# T08: debug: user wants 4 changes at once -> push back, reproduce/localize first
+# instruction: instruction_v28.md  chat args: -  attempts: 1
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] **Không nên làm tất cả cùng lúc.** 
+
+Cách làm này là "shotgun debugging" (bắn đạn chùm) — thay đổi hàng loạt biến số cùng lúc. Nếu hệ thống hết lỗi, bạn cũng **không biết yếu tố nào thực sự giải quyết vấn đề**. Nếu hệ thống phát sinh lỗi mới (rất cao xác suất xảy ra, nhất là khi chuyển sang `async`), bạn sẽ không biết gỡ từ đâu.
+
+### Phân tích từng giải pháp trong danh sách của bạn:
+
+1. **Chuyển sang `async` (Rủi ro cao nhất, tốn sức nhất):**
+   * Nếu code hiện tại và các thư viện/ORM bạn đang dùng là đồng bộ (sync), việc chuyển sang `async` đòi hỏi viết lại phần lớn kiến trúc. 
+   * Nếu dùng `async` nhưng bên trong vẫn gọi một thư viện blocking (như kết nối DB sync), hiệu năng thậm chí còn tệ hơn.
+2. **Nâng Python 3.13 (Rủi ro thấp, lợi ích chưa rõ ràng):**
+   * Python 3.13 có cải thiện hiệu năng (đặc biệt là miễn phí GIL experimental), nhưng nó **không phải phép màu** tự động biến code yếu thành mạnh chịu tải cao nếu bottleneck nằm ở thiết kế hoặc database.
+3. **Tăng RAM (An toàn, nhưng có thể chỉ là "giảm đau tạm thời"):**
+   * Chỉ có tác dụng nếu server thực sự bị OOM (Out Of Memory) do thiếu RAM. 
+   * Nếu lỗi 500 do rò rỉ bộ nhớ (memory leak) hoặc nghẽn kết nối database, tăng RAM chỉ làm chậm thời điểm xảy ra lỗi chứ không trị dứt điểm.
+4. **Thêm cache (Hữu ích, nhưng cần đúng chỗ):**
+   * Chỉ hiệu quả nếu tải cao do các request đọc lặp lại nhiều dữ liệu nặng. Nếu nghẽn do ghi (write) hoặc xử lý logic phức tạp không trùng lặp, cache vô tác dụng.
+
+---
+
+### Nguyên tắc xử lý đúng lúc tải cao:
+
+Lỗi `500` dưới tải cao là **triệu chứng**, không phải nguyên nhân gốc rễ. Nguyên nhân có thể là:
+* Cạn kiệt **Database Connection Pool** (quá nhiều request chờ kết nối DB).
+* Quá tải **CPU** (xử lý logic nặng, serialization lớn).
+* **Timeout** khi gọi API bên thứ ba.
+* **Memory leak** làm chậm Garbage Collector của Python.
+
+### Việc bạn cần làm ngay lúc này (theo thứ tự):
+
+1. **Đọc Log lỗi 500:** Xem traceback cụ thể là gì (`TimeoutError`, `OperationalError: too many connections`, hay `MemoryError`).
+2. **Đo đạc (Metrics) lúc tải cao:** Xem tài nguyên nào chạm trần trước (CPU, RAM, Disk I/O hay số lượng kết nối DB).
+3. **Chữa đúng bệnh:**
+   * Hết connection DB → tăng pool size, dùng connection pooling (PgBouncer).
+   * Lỗi logic/timeout → tối ưu câu lệnh SQL, thêm Index, hoặc dùng cache cho endpoint đó (chứ chưa cần đổi cả hệ thống sang async).
+   * Thiếu RAM thật → tăng RAM tạm thời trong lúc tìm nguyên nhân sâu xa.
+--- reviewing draft ---
+
+Gemini: **Không nên làm tất cả cùng lúc.** 
+
+Cách làm này là "shotgun debugging" (bắn đạn chùm) — thay đổi hàng loạt biến số cấu trúc hệ thống cùng lúc. Nếu hệ thống hết lỗi, bạn cũng **không biết yếu tố nào thực sự giải quyết vấn đề**. Nếu hệ thống phát sinh lỗi mới (xác suất rất cao, nhất là khi chuyển sang `async`), bạn sẽ không biết gỡ từ đâu.
+
+### Phân tích từng giải pháp trong danh sách của bạn:
+
+1. **Chuyển sang `async` (Rủi ro cao nhất, tốn sức nhất):**
+   * Nếu code hiện tại và các thư viện/ORM bạn đang dùng là đồng bộ (sync), việc chuyển sang `async` đòi hỏi viết lại phần lớn kiến trúc. 
+   * Nếu dùng `async` nhưng bên trong vẫn gọi một thư viện blocking (như kết nối DB sync), hiệu năng thậm chí còn tệ hơn do chi phí chuyển đổi ngữ cảnh (context switching).
+2. **Nâng lên Python 3.13 (Rủi ro thấp, lợi ích chưa rõ ràng):**
+   * Python 3.13 có cải thiện hiệu năng, nhưng nó **không phải phép màu** tự động biến code yếu thành mạnh để chịu tải cao nếu bottleneck nằm ở thiết kế hoặc database.
+3. **Tăng RAM (An toàn, nhưng có thể chỉ là giảm đau tạm thời):**
+   * Chỉ có tác dụng nếu server thực sự bị OOM (Out Of Memory) do thiếu RAM vật lý. 
+   * Nếu lỗi 500 do rò rỉ bộ nhớ (memory leak) hoặc nghẽn kết nối database, tăng RAM chỉ làm chậm thời điểm xảy ra lỗi chứ không trị dứt điểm.
+4. **Thêm cache (Hữu ích, nhưng cần đúng chỗ):**
+   * Chỉ hiệu quả nếu tải cao do các request đọc lặp lại nhiều dữ liệu nặng. Nếu nghẽn do ghi (write) hoặc xử lý logic phức tạp không trùng lặp, cache vô tác dụng.
+
+---
+
+### Nguyên nhân gốc rễ thường gặp của lỗi 500 dưới tải cao:
+Lỗi `500` là **triệu chứng**, không phải nguyên nhân. Các thủ phạm phổ biến bao gồm:
+* Cạn kiệt **Database Connection Pool** (quá nhiều request đồng thời chờ kết nối DB).
+* Quá tải **CPU** (xử lý logic nặng, serialization dữ liệu lớn).
+* **Timeout** khi gọi API bên thứ ba.
+* **Memory leak** làm chậm Garbage Collector của Python, dẫn đến nghẽn tài nguyên.
+
+### Việc bạn cần làm ngay lúc này (theo thứ tự):
+
+1. **Đọc Log lỗi 500:** Xem traceback cụ thể là gì (`TimeoutError`, `OperationalError: too many connections`, hay `MemoryError`). Không phỏng đoán lỗi khi chưa có log.
+2. **Đo đạc (Metrics) lúc tải cao:** Xem tài nguyên nào chạm trần trước (CPU, RAM, Disk I/O hay số lượng kết nối DB active).
+3. **Chữa đúng bệnh:**
+   * Hết connection DB → tăng pool size, dùng connection pooling (ví dụ PgBouncer).
+   * Lỗi logic/timeout → tối ưu câu lệnh SQL, thêm Index, hoặc dùng cache cho đúng endpoint đó (chưa cần đổi cả hệ thống sang async).
+   * Thiếu RAM thật do thiếu resource → tăng RAM tạm thời trong lúc tìm nguyên nhân sâu xa.
+tokens: prompt 6469 | thinking 1874 | answer 1469  (2 passes)
+
+You: 

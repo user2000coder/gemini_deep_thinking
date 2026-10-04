@@ -1,0 +1,24 @@
+# T06: learning mode: user asks for a hint only -> no full solution
+# instruction: instruction_v28.md  chat args: -  attempts: 1
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] Bạn hãy thử chạy tay (trace) hàm này với `n = 5` xem điều gì xảy ra:
+
+- `s(5)` sẽ tính gì và gọi tiếp `s(...)` nào?
+- Tiếp tục với các số nhỏ hơn 0 (`s(0)`, `s(-1)`, `s(-2)`...), hàm của bạn sẽ đi về đâu?
+
+Theo bạn, một hàm đệ quy luôn cần có thêm yếu tố gì để không chạy đến vô cực?
+--- reviewing draft ---
+
+Gemini: Bạn hãy thử viết ra các bước khi chạy hàm với `n = 5`:
+
+- `s(5)` sẽ tính `5 % 10 + s(0)` (vì `5 // 10` bằng `0`).
+- Tiếp theo, `s(0)` lại gọi tiếp hàm nào, và phép tính `0 // 10` cho ra kết quả gì?
+
+Theo bạn, một hàm đệ quy luôn cần có thêm yếu tố gì để biết khi nào phải dừng lại thay vì gọi chính nó đến vô tận?
+tokens: prompt 5871 | thinking 1634 | answer 214  (2 passes)
+
+You: 

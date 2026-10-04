@@ -1,0 +1,76 @@
+# T09_r3: multi-turn: constraint + rejected approach must not be revived
+# instruction: instruction_v28.md  chat args: -  attempts: 1
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] 1. **Database sẵn có (SQL / NoSQL):** Lưu session vào bảng/collection riêng trong PostgreSQL, MySQL hoặc MongoDB. 
+   - *Ưu điểm:* Không tốn thêm infra mới, dễ quản lý transaction, hỗ trợ TTL (xóa tự động qua index).
+   - *Nhược điểm:* Chậm hơn in-memory thuần túy khi traffic lớn.
+
+2. **Client-side Signed/Encrypted Cookies (JWT):** Lưu toàn bộ dữ liệu session đã mã hóa/ký số trực tiếp vào cookie của trình duyệt.
+   - *Ưu điểm:* Không cần server-side storage, scale ngang cực tốt.
+   - *Nhược điểm:* Khó thu hồi (revoke) session trước hạn nếu chưa có blacklist token; giới hạn dung lượng (khoảng 4KB).
+
+3. **Memcached:** Dùng in-memory key-value store thay thế (nếu chính sách công ty chỉ cấm Redis cụ thể, không cấm các giải pháp caching khác).
+   - *Ưu điểm:* Tốc độ cực nhanh, hỗ trợ TTL tốt như Redis.
+   - *Nhược điểm:* Không hỗ trợ persistence hay cấu trúc dữ liệu phức tạp (chỉ là string key-value).
+--- reviewing draft ---
+
+Gemini: 1. **Database sẵn có (SQL / NoSQL):** Lưu session trực tiếp vào bảng hoặc collection của PostgreSQL, MySQL hoặc MongoDB hiện tại.
+   - *Ưu điểm:* Không tốn thêm infra mới, tận dụng được cơ chế TTL (Postgres/Mongo) hoặc cleanup job sẵn có.
+   - *Nhược điểm:* Tăng tải đọc/ghi cho database chính khi traffic lớn.
+
+2. **Client-side Cookie (JWT / Signed Cookie):** Mã hóa và lưu toàn bộ dữ liệu session trực tiếp vào cookie trình duyệt.
+   - *Ưu điểm:* Không cần server-side storage, scale ngang cực tốt.
+   - *Nhược điểm:* Khó thu hồi (revoke) session trước hạn nếu không kết hợp cơ chế blacklist; giới hạn dung lượng khoảng 4KB.
+
+3. **Memcached:** Dùng làm in-memory key-value store thay thế. 
+   - *Giả định ngầm:* Chính sách công ty chỉ cấm riêng phần mềm Redis, nhưng cho phép các giải pháp caching khác. *(Nếu công ty cấm mọi loại cache server ngoài DB, phương án thay thế là lưu trong RAM của ứng dụng - in-memory cache, nhưng chỉ phù hợp nếu app chạy một instance duy nhất).*
+   - *Ưu điểm:* Tốc độ cực nhanh, hỗ trợ TTL tốt.
+   - *Nhược điểm:* Không hỗ trợ persistence hay cấu trúc dữ liệu phức tạp như Redis.
+tokens: prompt 5937 | thinking 1648 | answer 566  (2 passes)
+
+You: 
+[draft] Nên chọn **Database sẵn có (SQL/NoSQL)** làm mặc định. 
+
+**Lý do & Điều kiện quyết định:**
+
+1. **Đáp ứng tức thì yêu cầu thu hồi (Revocation):** Cả Database và Memcached đều cho phép xóa/vô hiệu hóa session ngay lập tức (chỉ cần DELETE dòng trong DB hoặc xóa key trong Memcached).
+2. **Yếu tố quyết định (Scale & Hạ tầng):**
+   - **Chọn Database:** Nếu app chạy nhiều instance (horizontal scaling) và công ty bạn khắt khe đến mức cấm cả Memcached (coi như cấm mọi external cache server). 
+   - **Chọn Memcached:** Nếu app cần hiệu năng cao, lượng concurrent lớn, và chính sách công ty *chỉ cấm riêng Redis* chứ không cấm các công cụ cache/KV store khác.
+   - *(Trường hợp phụ)* Nếu app chỉ chạy **1 instance duy nhất**, có thể lưu thẳng vào RAM của ứng dụng (In-memory cache) mà không cần dùng đến DB hay Memcached.
+--- reviewing draft ---
+
+Gemini: Chọn **Database sẵn có (SQL/NoSQL)** làm mặc định, trừ khi hệ thống có traffic lớn và Memcached được công ty cho phép sử dụng.
+
+**Điều kiện quyết định để chọn phương án:**
+
+1. **Phạm vi chính sách công ty (Giả định ngầm cần kiểm tra):**
+   - Nếu công ty cấm *mọi external cache server* (chỉ cho phép DB chính): Bắt buộc phải dùng **Database**.
+   - Nếu chính sách *chỉ cấm riêng Redis* nhưng thoáng với các công cụ cache khác: Có thể cân nhắc Memcached.
+
+2. **Quy mô và Hiệu năng hệ thống:**
+   - **Chọn Database:** Phù hợp với traffic từ nhỏ đến vừa, hoặc khi bạn muốn tối giản hạ tầng (không phải dựng thêm cụm Memcached mới). *Lưu ý:* Cần đánh index trường session_id để việc kiểm tra và xóa (revoke) không làm chậm DB chính.
+   - **Chọn Memcached:** Phù hợp khi hệ thống có concurrency rất lớn. Nếu lưu session vào DB chính ở mức tải cao, việc đọc/ghi liên tục sẽ làm nghẽn DB.
+   - *Trường hợp đặc biệt (Single Instance):* Nếu app của bạn chỉ chạy **1 instance duy nhất**, hãy lưu session thẳng vào **RAM của ứng dụng (In-memory)** – đáp ứng yêu cầu thu hồi tức thì, không tốn hạ tầng, nhưng sẽ mất session nếu app restart.
+tokens: prompt 6571 | thinking 2028 | answer 540  (2 passes)
+
+You: 
+[draft] Tùy thuộc vào chính sách hạ tầng:
+
+1. **Nếu được dùng cache server ngoài:** **Memcached** scale tốt nhất (tốc độ in-memory, đáp ứng tốt 10x traffic, hỗ trợ thu hồi session tức thì).
+2. **Nếu chỉ được dùng Database:** **NoSQL phân tán** (như DynamoDB, MongoDB) hoặc SQL có sharding/replica. *(Lý do: Database quan hệ truyền thống sẽ nhanh chóng bị nghẽn IO và connection pool khi tải tăng 10x).*
+--- reviewing draft ---
+
+Gemini: Tùy thuộc vào chính sách hạ tầng của công ty:
+
+1. **Nếu được dùng cache server ngoài:** **Memcached** scale tốt nhất. Do lưu hoàn toàn trên RAM và hỗ trợ phân tán (distributed caching), nó đáp ứng tốt lượng tải tăng 10x và cho phép thu hồi session tức thì bằng cách xóa key.
+2. **Nếu bắt buộc dùng Database sẵn có:** **NoSQL phân tán** (như DynamoDB, MongoDB) hoặc **SQL có tối ưu index/replica** scale tốt hơn. 
+
+*Giả định ngầm & Điều kiện đổi kết luận:* Câu trả lời trên giả định hệ thống được phép mở rộng hạ tầng (thêm node Memcached hoặc scale DB). Nếu công ty bắt buộc dùng duy nhất 1 database quan hệ (SQL monolith) hiện tại và cấm mọi cache ngoài, việc tải tăng 10x sẽ làm nghẽn IO/connection pool, khiến Database trở thành điểm nghẽn chí mạng bất kể có tối ưu thế nào.
+tokens: prompt 7132 | thinking 1672 | answer 325  (2 passes)
+
+You: 

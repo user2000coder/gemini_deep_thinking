@@ -1,0 +1,30 @@
+{
+  "instruction": "instruction_v28.md",
+  "chat_args": [],
+  "runs": [
+    {
+      "id": "T09_r1",
+      "turns": 3,
+      "answered": 3,
+      "seconds": 40.8,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T09_r2",
+      "turns": 3,
+      "answered": 3,
+      "seconds": 41.5,
+      "attempts": 1,
+      "errors": []
+    },
+    {
+      "id": "T09_r3",
+      "turns": 3,
+      "answered": 3,
+      "seconds": 37.7,
+      "attempts": 1,
+      "errors": []
+    }
+  ]
+}

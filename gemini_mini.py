@@ -24,6 +24,10 @@ Set GEMINI_THINKING_BUDGET in .env (--budget overrides it).
     gemini-2.5-flash       0 .. 24576
     gemini-3.5-flash-lite  accepts thinking_budget too (max -> 24576)
     gemini-2.5-flash-lite / gemini-2.5-pro: no longer available to new API users
+
+Timeout (GEMINI_TIMEOUT in .env, seconds, default 180, 0 = wait forever):
+    a call that gets no data for this long is retried like a dropped connection, then reported.
+    The SDK also sends it to the server as the request deadline, so keep it above the longest real answer.
 """
 
 import argparse
@@ -68,6 +72,20 @@ def parse_budget(value, model):
     if str(value).strip().lower() == "max":
         return 32768 if "pro" in model else 24576
     return int(value)
+
+
+def load_timeout():
+    """Seconds from GEMINI_TIMEOUT (default 180); 0 means wait forever."""
+    return float(os.getenv("GEMINI_TIMEOUT") or 180)
+
+
+def make_client(timeout):
+    """Gemini client that gives up on a call after `timeout` seconds without data instead of hanging forever.
+
+    A stalled call then raises httpx.ReadTimeout, which with_retry retries like any dropped connection.
+    Reads GEMINI_API_KEY / GOOGLE_API_KEY.
+    """
+    return genai.Client(http_options=types.HttpOptions(timeout=int(timeout * 1000)))
 
 
 def load_instruction(override):
@@ -188,7 +206,12 @@ def main():
     except ValueError:
         sys.exit(f"Invalid thinking budget {args.budget!r} - use max, -1 (dynamic), 0 (off) or a number")
 
-    client = genai.Client()  # reads GEMINI_API_KEY / GOOGLE_API_KEY
+    try:
+        timeout = load_timeout()
+    except ValueError:
+        sys.exit(f"Invalid GEMINI_TIMEOUT {os.getenv('GEMINI_TIMEOUT')!r} - use seconds, e.g. 180 (0 = wait forever)")
+
+    client = make_client(timeout)
     thinking = types.ThinkingConfig(thinking_budget=budget, include_thoughts=not args.hide_thoughts)
 
     def load_config():

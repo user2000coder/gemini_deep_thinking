@@ -1,0 +1,22 @@
+# T06: learning mode: user asks for a hint only -> no full solution
+# instruction: instruction_v28.md  chat args: -  attempts: 1
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] Hàm đệ quy luôn cần hai thành phần: bước thu nhỏ bài toán và **điểm dừng (base case)**. 
+
+Hàm của bạn đã có bước thu nhỏ (`n // 10`), nhưng thử nghĩ xem: nếu bạn truyền `n = 5`, chương trình sẽ gọi `s(0)`, rồi `s(0 // 10)` là `s(0)`... nó cứ tiếp tục gọi mãi không dứt ở điểm nào? 
+
+Điều kiện nào thì hàm nên dừng lại và trả về kết quả trực tiếp thay vì gọi tiếp chính nó?
+--- reviewing draft ---
+
+Gemini: Hàm đệ quy luôn cần hai thành phần: bước thu nhỏ bài toán và **điểm dừng (base case)**. 
+
+Hàm của bạn đã có bước thu nhỏ (`n // 10`), nhưng thử nghĩ xem: nếu bạn truyền `n = 5`, chương trình sẽ tính `5 % 10 + s(0)`, rồi `s(0)` lại gọi tiếp `s(0 // 10)` (tức là `s(0)`)... nó cứ tiếp tục gọi mãi không dứt ở điểm nào? 
+
+Theo bạn, với giá trị nào của `n` thì hàm không cần chia nhỏ nữa, mà nên dừng lại và trả về kết quả trực tiếp luôn?
+tokens: prompt 5847 | thinking 1323 | answer 269  (2 passes)
+
+You: 

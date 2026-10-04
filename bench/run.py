@@ -2,7 +2,8 @@
 
 Each case is piped to the interactive chat (one line = one user turn), so multi-turn cases keep history
 exactly like a real session. Settings not given here come from .env (model, budget, deepthink).
-On 429 / exhausted 5xx the whole case is retried after a wait, so a case never runs with a broken history.
+On 429 / exhausted 5xx / a network error the chat gave up on (incl. GEMINI_TIMEOUT), the whole case is retried
+after a wait, so a case never runs with a broken history. A case still running after 1800s is killed and recorded.
 Pass criteria for every case are in RUBRIC.md; grade with grade.py.
 
     python bench/run.py --out my_run                         # all cases, once
@@ -24,6 +25,10 @@ from pathlib import Path
 BENCH = Path(__file__).parent
 PROJECT = BENCH.parent
 PY = PROJECT / ".venv" / "Scripts" / "python.exe"
+# Line starts that gemini_mini.py / Python / this harness print for errors. Matched at the start of a line only,
+# so an answer that merely mentions "traceback" or "network error" is not counted.
+ERROR_MARKERS = ("API error", "Network error", "Traceback (most recent call last)", "(empty answer",
+                 "(review pass returned nothing", "(server error", "(network error", "[harness]")
 
 CASES = [
     ("T01", "simple task -> short direct answer, user's language (EN)",
@@ -75,9 +80,13 @@ def run_case(turns, instruction, chat_args):
     env = os.environ.copy()
     env.update(GEMINI_INSTRUCTION=instruction, PYTHONIOENCODING="utf-8", PYTHONUTF8="1")
     start = time.monotonic()
-    p = subprocess.run([str(PY), "gemini_mini.py", "--hide-thoughts", *chat_args], cwd=PROJECT, env=env,
-                       input="\n".join(turns) + "\n", capture_output=True, text=True, encoding="utf-8",
-                       timeout=1800)
+    try:
+        p = subprocess.run([str(PY), "gemini_mini.py", "--hide-thoughts", *chat_args], cwd=PROJECT, env=env,
+                           input="\n".join(turns) + "\n", capture_output=True, text=True, encoding="utf-8",
+                           timeout=1800)
+    except subprocess.TimeoutExpired as e:  # recorded as a failed run instead of killing the whole benchmark
+        partial = e.stdout.decode("utf-8", "replace") if isinstance(e.stdout, bytes) else (e.stdout or "")
+        return partial + "\n[harness] case killed after 1800s\n", time.monotonic() - start
     return p.stdout + (("\n[stderr]\n" + p.stderr) if p.stderr.strip() else ""), time.monotonic() - start
 
 
@@ -106,7 +115,7 @@ def main():
     for rid, purpose, turns in runs:
         for attempt in range(1, 4):
             text, secs = run_case(turns, args.instruction, chat_args)
-            if "API error 429" not in text and "API error 5" not in text:
+            if not any(s in text for s in ("API error 429", "API error 5", "Network error")):
                 break
             wait = 70 * attempt
             print(f"{rid}: transient API error (attempt {attempt}) - waiting {wait}s", flush=True)
@@ -114,8 +123,7 @@ def main():
         header = (f"# {rid}: {purpose}\n# instruction: {args.instruction}  chat args: {' '.join(chat_args) or '-'}"
                   f"  attempts: {attempt}\n\n")
         (out / f"{rid}.txt").write_text(header + text, encoding="utf-8")
-        errors = [line.strip() for line in text.splitlines()
-                  if "API error" in line or "Traceback" in line or "empty answer" in line or "returned nothing" in line]
+        errors = [line.strip() for line in text.splitlines() if line.lstrip().startswith(ERROR_MARKERS)]
         answered = text.count("Gemini:")
         summary.append({"id": rid, "turns": len(turns), "answered": answered, "seconds": round(secs, 1),
                         "attempts": attempt, "errors": errors})

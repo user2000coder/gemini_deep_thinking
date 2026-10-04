@@ -1,0 +1,24 @@
+# T05: false premise inside a task: correct the myth, still serve the goal
+# instruction: instruction_v28.md  chat args: -  attempts: 1
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+(network error ConnectError - retrying in 5s, attempt 2/3)
+
+[draft] Lưu ý nhỏ: Chuyện Einstein trượt toán hồi nhỏ thực ra là một **hiểu lầm phổ biến** (ông thực chất đã rất xuất sắc môn toán từ nhỏ). 
+
+Tuy nhiên, thông điệp cốt lõi của bạn — rằng điểm số không quyết định năng lực — hoàn toàn đúng. Dưới đây là đoạn mở bài khoảng 80 chữ, điều chỉnh lại chi tiết này để bài luận của bạn có sức thuyết phục và chính xác hơn:
+
+> Nhiều người thường nhắc đến những huyền thoại như Einstein để an ủi cho những điểm số kém cỏi trên ghế nhà trường. Dù thực tế nhà bác học này đã xuất sắc môn toán từ nhỏ, ý nghĩa đằng sau câu chuyện ấy vẫn nguyên giá trị: những con số khô khan trên bảng điểm chưa bao giờ là thước đo trọn vẹn cho tiềm năng con người. Giữa một hệ thống giáo dục chuẩn hóa, việc đánh giá thấp một cá nhân chỉ qua vài bài kiểm tra là một góc nhìn cần được soi chiếu lại.
+--- reviewing draft ---
+
+Gemini: Chuyện Einstein từng trượt toán thực ra là một **hiểu lầm phổ biến** (ông thực chất đã rất xuất sắc môn toán từ nhỏ, chỉ trượt phần thi chung do kém ngoại ngữ/văn học). 
+
+Tuy nhiên, thông điệp cốt lõi của bạn — điểm số không quyết định năng lực — hoàn toàn có giá trị. Dưới đây là đoạn mở bài khoảng 80 chữ, điều chỉnh chi tiết trên để bài luận thuyết phục và chính xác hơn:
+
+> Dù chuyện Einstein từng trượt toán thực chất là một hiểu lầm phổ biến, thông điệp đằng sau nó vẫn nguyên giá trị: điểm số kém trên ghế nhà trường chưa bao giờ là thước đo trọn vẹn cho tiềm năng con người. Giữa hệ thống giáo dục chuẩn hóa, việc đánh giá thấp một cá nhân chỉ qua vài bài kiểm tra là một góc nhìn cần được soi chiếu lại. Bài luận này sẽ bàn về giới hạn của điểm số trong việc định hình năng lực thực chất.
+tokens: prompt 5898 | thinking 2811 | answer 422  (2 passes)
+
+You: 

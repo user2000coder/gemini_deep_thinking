@@ -1,0 +1,97 @@
+# T09: multi-turn: constraint + rejected approach must not be revived
+# instruction: instruction_v28.md  chat args: -  attempts: 1
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] 3 phương án lưu session không dùng Redis:
+
+**1. Database chính (PostgreSQL / MySQL / MongoDB)**
+* **Cách hoạt động:** Lưu session ID vào Cookie (HttpOnly), toàn bộ dữ liệu session lưu trực tiếp vào bảng/collection trong database chính của app.
+* **Ưu điểm:** Không cần thêm hạ tầng mới; dễ kiểm soát, dễ thu hồi (revoke) session.
+* **Nhược điểm:** Tăng tải cho DB khi traffic cao (mỗi request đều phải query DB hoặc bảng session).
+* **Phù hợp:** App vừa và nhỏ, MVP, hoặc hệ thống đã có sẵn RDBMS/NoSQL và chưa chịu áp lực performance quá lớn.
+
+**2. Stateless JWT (Cookie HttpOnly)**
+* **Cách hoạt động:** Mã hóa thông tin session thành một JWT, lưu trực tiếp ở trình duyệt (Cookie HttpOnly chống XSS). Server không lưu state, chỉ verify chữ ký số (signature) ở mỗi request.
+* **Ưu điểm:** Scale ngang cực tốt, không tốn tài nguyên server hay DB để tra cứu session.
+* **Nhược điểm:** Khó thu hồi trước hạn (nếu cần logout từ xa hoặc khóa user, phải xây dựng thêm blacklist token bằng DB).
+* **Phù hợp:** REST API, kiến trúc microservices, app hiện đại cần scale lớn.
+
+**3. In-Memory Cache của Server (Local RAM)**
+* **Cách hoạt động:** Lưu session trực tiếp vào bộ nhớ RAM của tiến trình server (ví dụ: `Map` trong Node.js, `dict` trong Python).
+* **Ưu điểm:** Tốc độ cực nhanh, không phụ thuộc bất kỳ dịch vụ hay database nào khác.
+* **Nhược điểm:** Mất session khi server restart; nếu chạy nhiều instance (multi-server), bắt buộc phải cấu hình **Sticky Sessions** trên Load Balancer, nếu không user sẽ bị mất đăng nhập khi request nhảy sang server khác.
+* **Phù hợp:** Ứng dụng đơn thể (monolith) chạy 1 instance duy nhất hoặc traffic nội bộ/nhỏ.
+--- reviewing draft ---
+
+Gemini: 3 phương án lưu session không dùng Redis:
+
+**1. Lưu trực tiếp vào Database chính (SQL / NoSQL)**
+* **Cách hoạt động:** Lưu session ID vào Cookie (HttpOnly), toàn bộ dữ liệu session lưu vào bảng hoặc collection trong database chính của app.
+* **Ưu điểm:** Không cần thêm hạ tầng mới; dễ kiểm soát, dễ thu hồi (revoke) session khi cần.
+* **Nhược điểm:** Tăng tải cho DB khi traffic cao (mỗi request đều phải query DB).
+* **Phù hợp:** Ứng dụng vừa và nhỏ, MVP, hoặc hệ thống chưa chịu áp lực performance quá lớn.
+
+**2. Stateless JWT (Cookie HttpOnly)**
+* **Cách hoạt động:** Mã hóa thông tin session thành một JWT, lưu trực tiếp ở trình duyệt (Cookie HttpOnly chống XSS). Server không lưu state, chỉ verify chữ ký số (signature) ở mỗi request.
+* **Ưu điểm:** Scale ngang cực tốt, không tốn tài nguyên server hay DB để tra cứu session.
+* **Nhược điểm:** Khó thu hồi trước hạn (nếu cần logout từ xa hoặc khóa user ngay lập tức, phải xây dựng thêm bảng blacklist token).
+* **Phù hợp:** REST API, kiến trúc microservices, hệ thống cần scale lớn.
+
+**3. In-Memory Cache của Server (Local RAM)**
+* **Cách hoạt động:** Lưu session trực tiếp vào bộ nhớ RAM của tiến trình server (ví dụ: `Map` trong Node.js, `dict` trong Python).
+* **Ưu điểm:** Tốc độ đọc/ghi cực nhanh, không phụ thuộc bất kỳ dịch vụ hay database nào khác.
+* **Nhược điểm:** Mất session khi server restart; nếu chạy nhiều instance (multi-server), bắt buộc phải cấu hình **Sticky Sessions** trên Load Balancer, nếu không user sẽ bị mất đăng nhập khi request nhảy sang server khác.
+* **Phù hợp:** Ứng dụng đơn thể (monolith) chạy 1 instance duy nhất hoặc hệ thống nội bộ quy mô nhỏ.
+tokens: prompt 6162 | thinking 1562 | answer 880  (2 passes)
+
+You: 
+[draft] Chọn **Phương án 1: Lưu trực tiếp vào Database chính**.
+
+**Lý do cốt lõi:**
+Yêu cầu của bạn là **thu hồi session ngay lập tức** và **không được dùng Redis**.
+
+* Nếu bạn chọn **In-Memory (RAM)** và ứng dụng chạy từ 2 instance trở lên (hoặc scale sau này): Khi bạn xóa session trên Server A để logout user, user đó request sang Server B vẫn sẽ thấy hợp lệ (vì Server B vẫn giữ session trong RAM của nó). Không có Redis làm Pub/Sub, việc đồng bộ cache RAM giữa các server rất phức tạp.
+* **Database chính** đóng vai trò là "single source of truth" tập trung. Khi cần thu hồi, chỉ cần xóa hoặc đổi trạng thái dòng (row) đó trong DB, lập tức mọi server instance đều nhận kết quả (user bị đá ra ngay lập tức ở mọi request tiếp theo).
+
+**Lưu ý khi dùng DB:**
+* Đảm bảo **index** cột Session ID để query cực nhanh (thường là O(1) hoặc O(log N)).
+* Định kỳ chạy worker xóa các session đã hết hạn để tránh phình to bảng DB.
+--- reviewing draft ---
+
+Gemini: Nên chọn **Phương án 1: Lưu trực tiếp vào Database chính**.
+
+**Điều kiện quyết định (Assumption & Scale):**
+
+* **Nếu ứng dụng chạy từ 2 instance trở lên (hoặc dự kiến scale ngang):** Bắt buộc phải chọn **Database**. Vì không có Redis để làm cơ chế đồng bộ RAM giữa các server, nếu dùng In-Memory (Option 3), khi bạn xóa session trên Server A để logout user, user đó request sang Server B vẫn sẽ hợp lệ. Database chính là "single source of truth" duy nhất lúc này để đảm bảo lệnh thu hồi có hiệu lực tức thì trên mọi instance.
+* **Nếu ứng dụng chạy trên ĐÚNG 1 instance duy nhất (monolith cố định):** **In-Memory (Option 3)** lại là lựa chọn tốt hơn về mặt tốc độ (không tốn IO truy vấn DB ở mỗi request) và việc thu hồi session diễn ra tức thì bằng cách xóa key trong RAM.
+
+**Kết luận:** 
+Nếu hệ thống của bạn có khả năng scale nhiều server (hoặc chưa chắc chắn về tương lai), hãy chọn **Database**. Chú ý đánh index (chỉ mục) cho cột Session ID để giảm độ trễ query.
+tokens: prompt 6905 | thinking 1558 | answer 505  (2 passes)
+
+You: 
+[draft] Vẫn chọn **Database (nhưng cần tối ưu)**.
+
+**Lý do:**
+In-Memory (RAM) tuy chịu tải tốt hơn nhưng **không thể đồng bộ việc thu hồi session giữa nhiều server** khi scale ngang mà không có Redis. 
+
+**Cách để Database chịu được 10x tải:**
+1. Tách bảng session ra một database riêng (hoặc dùng NoSQL như DynamoDB/MongoDB) để không nghẽn DB chính.
+2. Đánh index (chỉ mục) chuẩn cho cột `session_id`.
+3. Dùng Connection Pooling để quản lý kết nối DB hiệu quả.
+--- reviewing draft ---
+
+Gemini: Vẫn chọn **Database (hoặc NoSQL)**.
+
+**Lý do:**
+Khi tải tăng 10x và hệ thống scale ngang nhiều instance, **In-Memory (RAM) không thể đáp ứng** vì không có Redis để đồng bộ việc thu hồi session giữa các server. Database là single source of truth duy nhất giữ được tính năng thu hồi tức lập tức.
+
+**Điều kiện để Database chịu tải 10x:**
+* Đánh index (chỉ mục) chuẩn cho cột `session_id`.
+* Tách bảng session ra database riêng (hoặc dùng NoSQL key-value nếu công ty cho phép) để không làm nghẽn DB chính của nghiệp vụ.
+tokens: prompt 7352 | thinking 2247 | answer 279  (2 passes)
+
+You: 

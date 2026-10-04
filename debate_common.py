@@ -1,7 +1,7 @@
 """Shared plumbing for the two debate agents (agent_a.py, agent_b.py): message shapes and the Gemini call.
 
 Settings come from .env (see gemini_mini.py): GEMINI_API_KEY, GEMINI_MODEL, GEMINI_THINKING_BUDGET,
-GEMINI_INSTRUCTION.
+GEMINI_INSTRUCTION, GEMINI_TIMEOUT.
 """
 
 import os
@@ -9,11 +9,10 @@ import time
 
 import httpx
 from fastapi import HTTPException
-from google import genai
 from google.genai import errors, types
 from pydantic import BaseModel, Field
 
-from gemini_mini import load_instruction, parse_budget  # importing it also loads .env
+from gemini_mini import load_instruction, load_timeout, make_client, parse_budget  # importing it also loads .env
 
 HOST = "127.0.0.1"
 CONSENSUS = "ĐỒNG THUẬN"  # the critic opens its turn with this when it has no material objection left
@@ -62,7 +61,7 @@ class Agent:
                 thinking_budget=parse_budget(os.getenv("GEMINI_THINKING_BUDGET") or "-1", self.model)),
             automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),  # no tools
         )
-        self.client = genai.Client()  # reads GEMINI_API_KEY / GOOGLE_API_KEY
+        self.client = make_client(load_timeout())  # reads GEMINI_API_KEY / GOOGLE_API_KEY and GEMINI_TIMEOUT
 
     def build_prompt(self, question, transcript):
         """The whole debate so far as one user message, ending with whose turn it is."""

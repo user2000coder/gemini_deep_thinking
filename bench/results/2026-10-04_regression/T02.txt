@@ -1,0 +1,25 @@
+# T02: reading trap: both readings expected
+# instruction: instruction_v28.md  chat args: -  attempts: 1
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] Hôm nay bạn có **3 quả**.
+
+**Giải thích:** 
+Câu đầu tiên đã khẳng định trạng thái hiện tại ("Tôi có 3 quả táo"). Việc hôm qua bạn ăn 1 quả là chuyện quá khứ và không làm thay đổi việc đề bài đã xác nhận số lượng bạn đang có lúc này.
+--- reviewing draft ---
+
+Gemini: Đáp án phụ thuộc vào cách bạn ngầm hiểu câu đầu tiên:
+
+1. **Theo đúng thì hiện tại ("Tôi có" — ngay lúc này):** Hôm nay bạn có **3 quả**. 
+   * *Lý do:* Câu đầu tiên khẳng định trạng thái thực tế ở hiện tại. Việc hôm qua ăn 1 quả là quá khứ và không làm thay đổi số lượng táo bạn đang có lúc này (có thể bạn đã mua thêm hoặc số táo hiện tại không liên quan đến quả đã ăn).
+
+2. **Theo logic chuỗi sự kiện (nếu câu đầu ngầm chỉ mốc quá khứ):** Hôm nay bạn còn **2 quả** (3 - 1 = 2).
+   * *Lý do:* Nếu câu đầu tiên mang ý nghĩa "Hôm qua tôi có 3 quả...", thì việc ăn 1 quả hôm qua sẽ làm giảm số lượng còn lại cho hôm nay.
+
+Nếu đây là câu hỏi mẹo về ngữ pháp và thì thời gian, câu trả lời chính xác là **3 quả**.
+tokens: prompt 5759 | thinking 2676 | answer 285  (2 passes)
+
+You: 
