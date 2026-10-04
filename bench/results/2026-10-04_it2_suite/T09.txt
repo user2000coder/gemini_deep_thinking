@@ -1,0 +1,120 @@
+# T09: multi-turn: constraint + rejected approach must not be revived
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] 3 phương án lưu session không dùng Redis, sắp xếp theo mức độ phổ biến:
+
+**1. Lưu trong Database chính (SQL/NoSQL)**
+*   **Cách hoạt động:** Tạo bảng `sessions` (khóa session ID, dữ liệu user, thời hạn hết hạn).
+*   **Ưu điểm:** Tận dụng hạ tầng sẵn có, không cần thêm service mới, dễ quản lý transaction.
+*   **Nhược điểm:** Tăng tải cho database chính khi lượng request lớn; cần job xóa session hết hạn (cleanup).
+*   **Phù hợp khi:** Ứng dụng scale vừa, muốn đơn giản hóa kiến trúc hạ tầng.
+
+**2. Stateless JWT (JSON Web Token) lưu qua HttpOnly Cookie**
+*   **Cách hoạt động:** Toàn bộ thông tin session được mã hóa vào JWT, client lưu trong cookie, server giải mã mỗi request mà không cần tra cứu storage.
+*   **Ưu điểm:** Hoàn toàn không tốn server storage, dễ scale ngang tuyệt đối.
+*   **Nhược điểm:** Khó thu hồi (revoke) ngay lập tức khi cần (trừ khi xây dựng thêm bảng blacklist token).
+*   **Phù hợp khi:** App dạng API-driven, SPA, ít cần tính năng "đăng xuất từ xa mọi thiết bị".
+
+**3. Memcached (nếu công ty chỉ cấm Redis, không cấm In-Memory Store nói chung)**
+*   **Cách hoạt động:** Dùng Memcached thay thế Redis để lưu key-value session.
+*   **Ưu điểm:** Tốc độ cao, chuyên dụng cho session/cache, nhẹ hơn database.
+*   **Nhược điểm:** Dữ liệu mất khi restart (giống Redis), không hỗ trợ Pub/Sub hay cấu trúc dữ liệu phức tạp (nhưng session thì không cần).
+*   **Phù hợp khi:** Cần hiệu năng cao như Redis nhưng lách được quy định cấm "Redis" của công ty (nếu chính sách cho phép). *Nếu cấm tất cả In-Memory Cache ngoài thì bỏ qua phương án này.*
+
+---
+*Assumption:* Nếu app chỉ chạy 1 server đơn (monolith) và không scale ngang, bạn có thể dùng **Local Memory + Sticky Sessions** của Load Balancer.
+--- reviewing draft ---
+
+Gemini: Dưới đây là 3 phương án lưu session không dùng Redis, sắp xếp theo các mô hình kiến trúc khác nhau để bạn lựa chọn dựa trên ràng buộc của công ty:
+
+**1. Lưu trong Database chính (SQL / NoSQL)**
+*   **Cách hoạt động:** Tạo bảng `sessions` (khóa session ID, dữ liệu user, thời hạn hết hạn). Mỗi request, server truy vấn DB để lấy thông tin.
+*   **Ưu điểm:** Tận dụng hạ tầng sẵn có, không cần thêm service mới, dễ quản lý transaction.
+*   **Nhược điểm:** Tăng I/O và tải cho database chính khi lượng request lớn; cần job định kỳ để dọn dẹp session hết hạn (cleanup).
+*   **Phù hợp khi:** Ứng dụng scale vừa, ưu tiên sự đơn giản trong kiến trúc hạ tầng và không muốn vận hành thêm hệ thống khác.
+
+**2. Stateless JWT lưu qua HttpOnly Cookie**
+*   **Cách hoạt động:** Toàn bộ thông tin session được mã hóa vào JWT (JSON Web Token), client lưu trong HttpOnly Cookie. Server giải mã chữ ký số trên mỗi request mà không cần tra cứu storage.
+*   **Ưu điểm:** Hoàn toàn không tốn server storage, dễ scale ngang tuyệt đối, không phụ thuộc vào state server.
+*   **Nhược điểm:** Khó thu hồi (revoke) phiên đăng nhập ngay lập tức khi cần (trừ khi xây dựng thêm cơ chế blacklist token phụ trợ). Kích thước cookie có thể lớn nếu lưu nhiều dữ liệu.
+*   **Phù hợp khi:** Ứng dụng dạng API-driven, SPA, ít cần tính năng "đăng xuất khỏi mọi thiết bị".
+
+**3. In-Memory Store thay thế (Ví dụ: Memcached)**
+*   **Cách hoạt động:** Dùng Memcached thay thế Redis để lưu trữ key-value session.
+*   **Ưu điểm:** Tốc độ cao, chuyên dụng cho session/cache, nhẹ và độc lập với database chính.
+*   **Nhược điểm:** Dữ liệu mất khi restart service (tương tự Redis), không hỗ trợ các cấu trúc dữ liệu phức tạp (nhưng session thì không cần).
+*   **Lưu ý quan trọng (*UNVERIFIED*):** Phương án này chỉ dùng được nếu chính sách công ty chỉ cấm định danh "Redis" (do vấn đề bản quyền/license) chứ không cấm toàn bộ hệ thống In-Memory Cache nói chung. Bạn cần xác nhận lại với đội ngũ DevOps/Security trước khi chọn.
+
+---
+
+**Phương án bổ sung (Dành riêng cho Monolith 1 server):**
+Nếu ứng dụng của bạn chỉ chạy trên một server duy nhất và không có nhu cầu scale ngang ngay lập tức, phương án tối ưu nhất là dùng **Local Memory (RAM của server)** kết hợp **Sticky Sessions** của Load Balancer. Không cần DB, không cần Redis/Memcached.
+tokens: prompt 5835 | thinking 2074 | answer 1110  (2 passes)
+
+You: 
+[draft] Vì yêu cầu **thu hồi session ngay lập tức** (immediate revocation), các phương án stateless (như JWT thuần) bị loại hoàn toàn. 
+
+Lựa chọn hiện tại thu gọn lại giữa **Database Session** và **Memcached (hoặc In-Memory tương đương)**. 
+
+Hãy chọn dựa trên 2 tiêu chí: **Tải của hệ thống** và **Chính sách hạ tầng**.
+
+### 1. Chọn Database Session (SQL/NoSQL) nếu:
+* **Quy mô:** Ứng dụng ở mức nhỏ đến trung bình, lượng request chưa quá cao (vài trăm req/s trở xuống).
+* **Ưu tiên:** Đơn giản hóa vận hành, không muốn xin thêm service mới từ DevOps/Security.
+* **Cách thu hồi:** Xóa row trong bảng `sessions` (hoặc set `revoked = true`). Request tiếp theo check thấy không tồn tại → đá văng ra ngay lập tức.
+* **Đánh đổi:** Chịu thêm một câu lệnh `SELECT` (và có thể `UPDATE` thời gian hết hạn) vào DB cho mỗi HTTP request. Cần đánh index trường `session_id` thật tốt để không nghẽn DB.
+
+### 2. Chọn Memcached (hoặc In-Memory Cache khác) nếu:
+* **Quy mô:** Ứng dụng có lượng truy cập lớn, DB chính đang gánh tải nặng, không thể chịu thêm hàng nghìn query check session mỗi giây.
+* **Ưu tiên:** Tốc độ phản hồi nhanh (đọc/ghi trên RAM), chuyên biệt hóa cho việc lưu session.
+* **Cách thu hồi:** Xóa key (`DELETE session_id`). Hiệu lực tức thì hệt như Redis.
+* **Lưu ý quan trọng (*UNVERIFIED*):** Bạn phải kiểm tra lại đội ngũ Security/DevOps xem lệnh "cấm Redis" là cấm cụ thể phần mềm Redis (ví dụ do vấn đề license SSPL của Redis từ bản mới), hay cấm toàn bộ hệ thống In-Memory Cache. Nếu họ chỉ cấm Redis, Memcached là lựa chọn thay thế hoàn hảo.
+
+---
+
+### Tóm lại:
+* Nếu **ngại thủ tục xin thêm service** hoặc app nhỏ: Dùng **Database Session**.
+* Nếu **áp lực về hiệu năng/tải cao** và Memcached qua được vòng kiểm duyệt của công ty: Dùng **Memcached**.
+--- reviewing draft ---
+
+Gemini: Vì yêu cầu **thu hồi session ngay lập tức** (immediate revocation), các phương án stateless thuần túy bị loại. Sự lựa chọn thu gọn lại giữa **Database Session** và **Memcached (hoặc In-Memory Cache tương đương)**.
+
+Cả hai phương án này đều đáp ứng được yêu cầu thu hồi ngay lập tức (với DB: xóa/đổi cờ row trong bảng; với Memcached: xóa key). Dưới đây là tiêu chí quyết định bạn nên chọn cái nào:
+
+### 1. Chọn Database Session (SQL / NoSQL) nếu:
+* **Quy mô & Tải:** Ứng dụng ở mức nhỏ đến trung bình, lượng request chưa quá cao (vài trăm req/s trở xuống), database chính còn dư địa chịu tải.
+* **Hạ tầng:** Bạn muốn đơn giản hóa tối đa, **không muốn xin thêm service mới** từ DevOps/Security vì app đã sẵn có database.
+* **Cách thu hồi:** Xóa row trong bảng `sessions` (hoặc set `revoked = true`). Request tiếp theo check thấy không tồn tại sẽ bị từ chối ngay lập tức.
+* **Đánh đổi:** Chịu thêm câu lệnh `SELECT` (và có thể `UPDATE` thời gian hết hạn) vào DB cho mỗi HTTP request. Cần đánh index trường `session_id` thật tốt để tránh nghẽn DB.
+
+### 2. Chọn Memcached (hoặc In-Memory Cache khác) nếu:
+* **Quy mô & Tải:** Ứng dụng có lượng truy cập lớn, DB chính đang gánh tải nặng, không thể chịu thêm hàng nghìn query check session mỗi giây.
+* **Hạ tầng:** Cần tốc độ phản hồi cực nhanh (đọc/ghi trên RAM) và muốn tách biệt dữ liệu session ra khỏi database nghiệp vụ chính.
+* **Cách thu hồi:** Xóa key (`DELETE session_id`). Hiệu lực tức thì hệt như Redis.
+* **Lưu ý quan trọng (*UNVERIFIED*):** Bạn phải kiểm tra lại đội ngũ Security/DevOps xem lệnh "cấm Redis" là cấm cụ thể phần mềm Redis (ví dụ do vấn đề license SSPL), hay cấm toàn bộ hệ thống In-Memory Cache ngoài DB. Nếu chỉ cấm Redis, Memcached là phương án thay thế hoàn hảo.
+
+---
+
+### Tóm lại:
+* Nếu **áp lực hiệu năng cao** và Memcached qua được vòng kiểm duyệt chính sách: Chọn **Memcached**.
+* Nếu **ưu tiên không xin thêm service mới** hoặc app quy mô vừa/nhỏ: Chọn **Database Session**.
+tokens: prompt 7173 | thinking 2162 | answer 1074  (2 passes)
+
+You: 
+[draft] Chọn **Memcached** (hoặc In-Memory Cache thay thế).
+
+**Lý do:** Lưu trên RAM, tốc độ đọc/ghi cực cao và độc lập với database chính, giúp tránh nghẽn cổ chai (bottleneck) khi lượng request tăng đột biến. Database truyền thống sẽ rất nhanh quá tải I/O nếu phải gánh thêm 10x lượng query kiểm tra session liên tục trên mỗi request.
+--- reviewing draft ---
+
+Gemini: Xét về mặt kỹ thuật, **Memcached** (hoặc In-Memory Cache thay thế) scale tốt hơn đáng kể, nhờ tốc độ đọc/ghi trên RAM và tránh làm nghẽn I/O database chính.
+
+Tuy nhiên, lựa chọn phụ thuộc vào cách hiểu về chính sách công ty:
+1. **Nếu chính sách chỉ cấm riêng phần mềm Redis:** Chọn **Memcached** (scale tốt nhất về hiệu năng).
+2. **Nếu chính sách cấm toàn bộ In-Memory Cache ngoài DB:** Bắt buộc phải chọn **Database Session**, và bạn phải scale bằng cách tối ưu DB (index kỹ cột `session_id`, dùng connection pooling, hoặc tách bảng session sang một DB instance riêng).
+tokens: prompt 7912 | thinking 1593 | answer 238  (2 passes)
+
+You: 

@@ -1,0 +1,281 @@
+<!doctype html>
+<!-- Web UI for the two-agent debate. Served by agent_a.py at "/"; it POSTs to /debate and renders the
+     NDJSON stream turn by turn. Optional URL params: ?q=<question>&rounds=<1-5>&auto=1 (auto=1 submits on load). -->
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gemini tranh luận</title>
+<style>
+  :root {
+    --bg: #f5f6f8; --panel: #ffffff; --text: #1b2230; --muted: #667085; --line: #e2e5eb;
+    --a: #1d4ed8; --a-bg: #eef3ff; --b: #b45309; --b-bg: #fff5e6;
+    --ok: #15803d; --ok-bg: #e9f7ee; --err: #b42318; --err-bg: #fdeceb; --btn: #1d4ed8; --btn-text: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1218; --panel: #171b23; --text: #e6e9ef; --muted: #98a2b3; --line: #2a303b;
+      --a: #8ab0ff; --a-bg: #18233b; --b: #f0b35a; --b-bg: #2a2014;
+      --ok: #6fd08c; --ok-bg: #13261a; --err: #ff8a80; --err-bg: #2c1614; --btn: #3b6ef0; --btn-text: #ffffff;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.6 system-ui, "Segoe UI", Roboto, sans-serif;
+    display: flex; flex-direction: column;
+  }
+  .wrap { width: 100%; max-width: 880px; margin: 0 auto; padding: 0 16px; }
+  header { padding: 18px 0 12px; border-bottom: 1px solid var(--line); background: var(--panel); }
+  h1 { margin: 0; font-size: 20px; }
+  .sub { margin: 2px 0 10px; color: var(--muted); font-size: 14px; }
+  #status { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { font-size: 12.5px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+  .chip.a { color: var(--a); background: var(--a-bg); border-color: transparent; }
+  .chip.b { color: var(--b); background: var(--b-bg); border-color: transparent; }
+  .chip.down { color: var(--err); background: var(--err-bg); border-color: transparent; }
+
+  main { flex: 1; overflow-y: auto; padding: 18px 0 8px; }
+  #empty { color: var(--muted); text-align: center; padding: 48px 12px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
+  .card.user { background: transparent; border-style: dashed; }
+  .card.a { border-left: 4px solid var(--a); }
+  .card.b { border-left: 4px solid var(--b); background: var(--b-bg); }
+  .card.final { border-color: var(--ok); border-left-color: var(--ok); box-shadow: 0 0 0 1px var(--ok); }
+  .card.error { border-color: var(--err); background: var(--err-bg); color: var(--err); }
+  .head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; font-size: 13px; margin-bottom: 4px; }
+  .who { font-weight: 650; }
+  .a .who { color: var(--a); } .b .who { color: var(--b); } .user .who { color: var(--muted); }
+  .tokens { color: var(--muted); font-size: 12px; margin-left: auto; }
+  .badge { font-size: 12px; font-weight: 650; color: var(--ok); background: var(--ok-bg); padding: 1px 8px; border-radius: 999px; }
+  .body { overflow-wrap: anywhere; }
+  .body.plain { white-space: pre-wrap; }
+  .body > :first-child { margin-top: 0; } .body > :last-child { margin-bottom: 0; }
+  .body h1, .body h2, .body h3 { font-size: 15.5px; margin: 14px 0 6px; }
+  .body pre { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px; overflow-x: auto; }
+  .body code { font: 13px/1.5 ui-monospace, Consolas, monospace; }
+  .body :not(pre) > code { background: var(--bg); padding: 1px 5px; border-radius: 4px; }
+  .tablebox { overflow-x: auto; }
+  .body table { border-collapse: collapse; font-size: 14px; }
+  .body th, .body td { border: 1px solid var(--line); padding: 5px 9px; text-align: left; vertical-align: top; }
+  .pending { color: var(--muted); font-size: 14px; padding: 4px 2px 12px; }
+  .pending::after { content: "…"; animation: blink 1.2s steps(3) infinite; }
+  @keyframes blink { 50% { opacity: .25; } }
+  .summary { text-align: center; font-size: 14px; padding: 6px 12px; border-radius: 8px; margin-bottom: 20px; }
+  .summary.ok { color: var(--ok); background: var(--ok-bg); }
+  .summary.warn { color: var(--b); background: var(--b-bg); }
+  .summary small { display: block; color: var(--muted); }
+
+  footer { border-top: 1px solid var(--line); background: var(--panel); padding: 12px 0 14px; }
+  textarea {
+    width: 100%; min-height: 64px; max-height: 240px; resize: vertical; padding: 10px 12px;
+    font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
+  }
+  textarea:focus { outline: 2px solid var(--a); outline-offset: -1px; }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 8px; font-size: 13.5px; color: var(--muted); }
+  select { font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 2px 6px; }
+  button {
+    margin-left: auto; font: inherit; font-weight: 600; color: var(--btn-text); background: var(--btn);
+    border: 0; border-radius: 8px; padding: 8px 20px; cursor: pointer;
+  }
+  button:disabled { opacity: .55; cursor: default; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Gemini tranh luận</h1>
+    <p class="sub">Agent A trả lời, agent B phản biện, A sửa lại. Lặp lại cho đến khi B đồng thuận hoặc hết số vòng.</p>
+    <div id="status"><span class="chip">đang kiểm tra agent…</span></div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap" id="log">
+    <div id="empty">Nhập câu hỏi ở ô bên dưới để hai agent bắt đầu tranh luận.<br>Mỗi câu hỏi là một cuộc tranh luận riêng; các agent không nhớ câu hỏi trước.</div>
+  </div>
+</main>
+
+<footer>
+  <form class="wrap" id="composer">
+    <textarea id="q" placeholder="Nhập câu hỏi… (Enter để gửi, Shift+Enter để xuống dòng)" autofocus></textarea>
+    <div class="row">
+      <label>Số vòng phản biện tối đa
+        <select id="rounds">
+          <option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option>
+        </select>
+      </label>
+      <span id="cost"></span>
+      <button id="send" type="submit">Gửi</button>
+    </div>
+  </form>
+</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+const LABEL = { proposer: "đề xuất", critic: "phản biện" };
+const main = document.querySelector("main");
+let busy = false;
+
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text !== undefined) e.textContent = text;
+  return e;
+}
+
+// Model output is markdown. Render it only when both libraries loaded (sanitised); otherwise show plain text.
+// Images and form controls are dropped: the model has no business loading remote content or faking UI here.
+const SANITIZE = { FORBID_TAGS: ["img", "picture", "video", "audio", "style", "form", "input", "button", "textarea", "select"] };
+
+function renderBody(text) {
+  const body = el("div", "body");
+  if (window.marked && window.DOMPurify) {
+    body.innerHTML = DOMPurify.sanitize(marked.parse(text, { breaks: true }), SANITIZE);  // breaks: keep single newlines
+    body.querySelectorAll("table").forEach(t => {   // wide tables scroll inside the card, not the page
+      const box = el("div", "tablebox");
+      t.replaceWith(box);
+      box.append(t);
+    });
+  } else {
+    body.classList.add("plain");
+    body.textContent = text;
+  }
+  return body;
+}
+
+function append(node) {
+  $("empty")?.remove();
+  $("log").append(node);
+  main.scrollTop = main.scrollHeight;
+  return node;
+}
+
+function turnCard(ev, n) {
+  const card = el("div", "card " + (ev.agent === "A" ? "a" : "b"));
+  const head = el("div", "head");
+  head.append(el("span", "who", `Agent ${ev.agent} · ${LABEL[ev.role] || ev.role} · lượt ${n}`));
+  const t = ev.tokens || {};
+  head.append(el("span", "tokens", `suy nghĩ ${t.thinking ?? 0} · trả lời ${t.answer ?? 0} token`));
+  card.append(head, renderBody(ev.text));
+  return card;
+}
+
+async function loadStatus() {
+  const box = $("status");
+  try {
+    const s = await (await fetch("/status")).json();
+    box.replaceChildren(
+      el("span", "chip a", `Agent A (đề xuất): ${s.a.model}`),
+      s.b ? el("span", "chip b", `Agent B (phản biện): ${s.b.model}`)
+          : el("span", "chip down", "Agent B chưa chạy: mở terminal khác và chạy python agent_b.py"));
+    return !!s.b;
+  } catch {
+    box.replaceChildren(el("span", "chip down", "Không kết nối được agent A"));
+    return false;
+  }
+}
+
+function updateCost() {
+  $("cost").textContent = `tối đa ${1 + 2 * Number($("rounds").value)} lần gọi Gemini`;
+}
+
+async function ask(question, rounds) {
+  busy = true;
+  $("send").disabled = true;
+  $("send").textContent = "Đang tranh luận…";
+  loadStatus();
+
+  const user = el("div", "card user");
+  const head = el("div", "head");
+  head.append(el("span", "who", "Bạn hỏi"));
+  const qBody = el("div", "body plain", question);
+  user.append(head, qBody);
+  append(user);
+
+  const pending = append(el("div", "pending", "Agent A đang viết câu trả lời"));
+  const counts = { A: 0, B: 0 }, totals = { prompt: 0, thinking: 0, answer: 0 };
+  let lastA = null, finished = false;
+
+  const handle = ev => {
+    if (ev.event === "turn") {
+      counts[ev.agent] = (counts[ev.agent] || 0) + 1;
+      for (const k in totals) totals[k] += (ev.tokens || {})[k] || 0;
+      const card = turnCard(ev, counts[ev.agent]);
+      pending.before(card);
+      if (ev.agent === "A") lastA = card;
+      pending.textContent = ev.agent === "A" ? "Agent B đang phản biện" : "Agent A đang xem xét phản biện và sửa câu trả lời";
+    } else if (ev.event === "error") {
+      finished = true;
+      pending.before(el("div", "card error", "Lỗi: " + ev.detail));
+    } else if (ev.event === "done") {
+      finished = true;
+      if (lastA) {
+        lastA.classList.add("final");
+        lastA.querySelector(".head .who").after(el("span", "badge", "Câu trả lời cuối cùng"));
+      }
+      const s = el("div", "summary " + (ev.consensus ? "ok" : "warn"),
+        ev.consensus ? `Agent B đồng thuận sau ${ev.turns} lượt.`
+                     : `Hết ${rounds} vòng phản biện. Bản sửa cuối của agent A chưa được agent B xem lại.`);
+      s.append(el("small", "", `Tổng token: đầu vào ${totals.prompt} · suy nghĩ ${totals.thinking} · trả lời ${totals.answer}`));
+      pending.before(s);
+    }
+    main.scrollTop = main.scrollHeight;
+  };
+
+  try {
+    const res = await fetch("/debate", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question, rounds }),
+    });
+    if (!res.ok) throw new Error(`máy chủ trả về ${res.status}: ${await res.text()}`);
+    const reader = res.body.getReader(), dec = new TextDecoder();
+    let buf = "";
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      let i;
+      while ((i = buf.indexOf("\n")) >= 0) {
+        const line = buf.slice(0, i).trim();
+        buf = buf.slice(i + 1);
+        if (line) handle(JSON.parse(line));
+      }
+    }
+    if (!finished) throw new Error("kết nối bị ngắt giữa chừng");
+  } catch (e) {
+    pending.before(el("div", "card error", "Lỗi: " + e.message));
+  } finally {
+    pending.remove();
+    busy = false;
+    $("send").disabled = false;
+    $("send").textContent = "Gửi";
+    $("q").focus();
+  }
+}
+
+function submit() {
+  const question = $("q").value.trim();
+  if (!question || busy) return;
+  $("q").value = "";
+  ask(question, Number($("rounds").value));
+}
+
+$("composer").addEventListener("submit", e => { e.preventDefault(); submit(); });
+$("q").addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); submit(); }
+});
+$("rounds").addEventListener("change", updateCost);
+
+const params = new URLSearchParams(location.search);
+if (/^[1-5]$/.test(params.get("rounds") || "")) $("rounds").value = params.get("rounds");
+if (params.get("q")) $("q").value = params.get("q");
+updateCost();
+loadStatus();
+if (params.get("q") && params.get("auto") === "1") submit();
+</script>
+</body>
+</html>

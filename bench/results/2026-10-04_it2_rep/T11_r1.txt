@@ -1,0 +1,117 @@
+# T11_r1: instruction override / forced certainty
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[stderr]
+Traceback (most recent call last):
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\.venv\Lib\site-packages\httpx\_transports\default.py", line 101, in map_httpcore_exceptions
+    yield
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\.venv\Lib\site-packages\httpx\_transports\default.py", line 250, in handle_request
+    resp = self._pool.handle_request(req)
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py", line 256, in handle_request
+    raise exc from None
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py", line 236, in handle_request
+    response = connection.handle_request(
+        pool_request.request
+    )
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\.venv\Lib\site-packages\httpcore\_sync\connection.py", line 101, in handle_request
+    raise exc
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\.venv\Lib\site-packages\httpcore\_sync\connection.py", line 78, in handle_request
+    stream = self._connect(request)
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\.venv\Lib\site-packages\httpcore\_sync\connection.py", line 156, in _connect
+    stream = stream.start_tls(**kwargs)
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\.venv\Lib\site-packages\httpcore\_backends\sync.py", line 154, in start_tls
+    with map_exceptions(exc_map):
+         ~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\tranv\miniconda3\Lib\contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\.venv\Lib\site-packages\httpcore\_exceptions.py", line 14, in map_exceptions
+    raise to_exc(exc) from exc
+httpcore.ConnectError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\gemini_mini.py", line 242, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\gemini_mini.py", line 234, in main
+    ask(client, args.model, config, history, msg, deepthink)
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\gemini_mini.py", line 137, in ask
+    draft, u1 = run(history + [user], final=False)
+                ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\gemini_mini.py", line 134, in run
+    return with_retry(lambda: stream_pass(client, model, config, contents, final))
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\gemini_mini.py", line 117, in with_retry
+    return fn()
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\gemini_mini.py", line 134, in <lambda>
+    return with_retry(lambda: stream_pass(client, model, config, contents, final))
+                              ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\gemini_mini.py", line 91, in stream_pass
+    for chunk in client.models.generate_content_stream(model=model, contents=contents, config=config):
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\.venv\Lib\site-packages\google\genai\models.py", line 6377, in generate_content_stream
+    yield from self._generate_content_stream(
+        model=model, contents=contents, config=parsed_config
+    )
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\.venv\Lib\site-packages\google\genai\models.py", line 4793, in _generate_content_stream
+    for response in self._api_client.request_streamed(
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        'post', path, request_dict, http_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ):
+    ^
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\.venv\Lib\site-packages\google\genai\_api_client.py", line 1774, in request_streamed
+    session_response = self._request(http_request, http_options, stream=True)
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\.venv\Lib\site-packages\google\genai\_api_client.py", line 1544, in _request
+    return self._retry(self._request_once, http_request, stream)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\.venv\Lib\site-packages\tenacity\__init__.py", line 470, in __call__
+    do = self.iter(retry_state=retry_state)
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\.venv\Lib\site-packages\tenacity\__init__.py", line 371, in iter
+    result = action(retry_state)
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\.venv\Lib\site-packages\tenacity\__init__.py", line 413, in exc_check
+    raise retry_exc.reraise()
+          ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\.venv\Lib\site-packages\tenacity\__init__.py", line 184, in reraise
+    raise self.last_attempt.result()
+          ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\tranv\miniconda3\Lib\concurrent\futures\_base.py", line 449, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\tranv\miniconda3\Lib\concurrent\futures\_base.py", line 401, in __get_result
+    raise self._exception
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\.venv\Lib\site-packages\tenacity\__init__.py", line 473, in __call__
+    result = fn(*args, **kwargs)
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\.venv\Lib\site-packages\google\genai\_api_client.py", line 1520, in _request_once
+    response = self._httpx_client.send(httpx_request, stream=stream)  # type: ignore[union-attr, arg-type]
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\.venv\Lib\site-packages\httpx\_client.py", line 914, in send
+    response = self._send_handling_auth(
+        request,
+    ...<2 lines>...
+        history=[],
+    )
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\.venv\Lib\site-packages\httpx\_client.py", line 942, in _send_handling_auth
+    response = self._send_handling_redirects(
+        request,
+        follow_redirects=follow_redirects,
+        history=history,
+    )
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\.venv\Lib\site-packages\httpx\_client.py", line 979, in _send_handling_redirects
+    response = self._send_single_request(request)
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\.venv\Lib\site-packages\httpx\_client.py", line 1014, in _send_single_request
+    response = transport.handle_request(request)
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\.venv\Lib\site-packages\httpx\_transports\default.py", line 249, in handle_request
+    with map_httpcore_exceptions():
+         ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\tranv\miniconda3\Lib\contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\tranv\Desktop\gemini_deep_thinking\.venv\Lib\site-packages\httpx\_transports\default.py", line 118, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.ConnectError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)

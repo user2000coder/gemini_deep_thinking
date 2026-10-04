@@ -1,0 +1,111 @@
+# T09: multi-turn: constraint + rejected approach must not be revived
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] 3 phương án lưu session không dùng Redis, xét theo các mô hình kiến trúc phổ biến:
+
+**1. JWT (JSON Web Token) lưu trong HttpOnly Cookie**
+*   **Bản chất:** Stateless. Dữ liệu session mã hóa nằm ngay ở client (browser cookie), server không cần lưu trữ state.
+*   **Ưu điểm:** Không tốn tài nguyên server, dễ scale ngang (multi-server không cần sync session).
+*   **Nhược điểm:** Khó revoke (thu hồi) trước khi token hết hạn trừ khi kết hợp blacklist (lại cần DB); dung lượng payload bị giới hạn bởi cookie size (~4KB).
+*   **Phù hợp:** SPA, Microservices, ứng dụng phân tán, traffic lớn.
+
+**2. Database quan hệ sẵn có (PostgreSQL / MySQL)**
+*   **Bản chất:** Stateful. Tạo bảng `sessions` lưu session_id, user_id, expiry, và data (JSON).
+*   **Ưu điểm:** Tận dụng DB hiện có, không cần cài thêm infra mới; dễ revoke session lập tức (xóa dòng trong DB); hỗ trợ ACID.
+*   **Nhược điểm:** Tăng tải đọc/ghi cho DB khi traffic cao; latency cao hơn in-memory cache.
+*   **Phù hợp:** Ứng dụng Monolith, MVP, hệ thống vừa và nhỏ đã có sẵn SQL DB.
+
+**3. Memcached (hoặc MongoDB / DynamoDB)**
+*   **Bản chất:** Dùng một data store thay thế (nếu công ty chỉ cấm riêng Redis, Memcached là lựa chọn gần nhất; nếu cấm tất cả In-memory cache, dùng MongoDB/DynamoDB).
+*   **Ưu điểm:** 
+    *   *Memcached:* Tốc độ tương đương Redis, chuyên dùng cho caching/session.
+    *   *MongoDB/DynamoDB:* Khả năng mở rộng tốt, TTL (Time-to-Live) tự động xóa session hết hạn.
+*   **Nhược điểm:** Thêm một thành phần hạ tầng cần quản lý và vận hành.
+*   **Phù hợp:** Hệ thống lớn cần tốc độ cao hoặc cần TTL tự động nhưng bị ràng buộc chính sách công nghệ.
+
+*Gợi ý nhanh:* Nếu app nhỏ/vừa → Chọn **SQL DB** (đơn giản, kiểm soát tốt). Nếu app phân tán/microservices → Chọn **JWT**.
+--- reviewing draft ---
+
+Gemini: 3 phương án lưu session đáp ứng ràng buộc **không dùng Redis**:
+
+**1. JWT (JSON Web Token) lưu trong HttpOnly Cookie (Stateless)**
+*   **Bản chất:** Dữ liệu session mã hóa nằm ngay ở client (cookie), server không lưu state.
+*   **Ưu điểm:** Không tốn tài nguyên server, dễ scale ngang, không phụ thuộc hạ tầng ngoài DB chính.
+*   **Nhược điểm:** Khó thu hồi (revoke) trước khi hết hạn trừ khi kết hợp blacklist; giới hạn dung lượng ~4KB.
+*   **Phù hợp:** Ứng dụng phân tán, Microservices, SPA.
+
+**2. Database quan hệ sẵn có (PostgreSQL / MySQL) (Stateful)**
+*   **Bản chất:** Tạo bảng `sessions` lưu session_id, user_id, expiry, và dữ liệu JSON.
+*   **Ưu điểm:** Tận dụng hạ tầng có sẵn, không cần cài thêm công cụ mới; dễ revoke lập tức (xóa dòng); hỗ trợ ACID.
+*   **Nhược điểm:** Tăng tải đọc/ghi cho DB chính khi traffic cao; latency cao hơn giải pháp in-memory.
+*   **Phù hợp:** Ứng dụng Monolith, hệ thống vừa và nhỏ đã có sẵn SQL DB.
+
+**3. NoSQL Database (MongoDB / DynamoDB) có hỗ trợ TTL**
+*   **Bản chất:** Dùng Document DB lưu session với tính năng TTL (Time-to-Live) tự động xóa bản ghi hết hạn.
+*   **Ưu điểm:** Hiệu năng tốt hơn SQL cho việc đọc/ghi key-value đơn giản, tự động dọn dẹp session cũ mà không cần cron job.
+*   **Nhược điểm:** Thêm thành phần hạ tầng cần quản lý (nếu chưa dùng sẵn NoSQL). *(Lưu ý: Nếu công ty cấm Redis do chính sách về In-Memory Cache, Memcached cũng sẽ bị cấm; do đó NoSQL là lựa chọn thay thế an toàn hơn).*
+
+*Gợi ý nhanh:* 
+*   App nhỏ/vừa, đã có sẵn SQL → Chọn **Database quan hệ**.
+*   App lớn, phân tán, cần tối ưu tốc độ/scale → Chọn **JWT** hoặc **NoSQL (nếu cần state server-side)**.
+tokens: prompt 5529 | thinking 1877 | answer 1019  (2 passes)
+
+You: 
+[draft] Khi cần **thu hồi session ngay lập tức**, cả SQL và NoSQL đều đáp ứng tốt vì bản chất chúng lưu state ở server. Lựa chọn phụ thuộc hoàn toàn vào **tech stack hiện tại** của công ty:
+
+**1. Chọn Database quan hệ (SQL: PostgreSQL / MySQL) nếu:**
+*   Hệ thống của bạn **đã có sẵn SQL DB** làm cơ sở dữ liệu chính.
+*   **Cách làm:** Tạo bảng `sessions` (session_id, user_id, data, expires_at). Thu hồi = `DELETE FROM sessions WHERE id = ?`.
+*   **Lý do:** Không cần cài đặt hay vận hành thêm bất kỳ hạ tầng nào mới (giúp tránh rủi ro vi phạm chính sách cấm công cụ của công ty). Tải của session thường rất nhỏ, SQL DB hoàn toàn gánh được trừ khi traffic ở mức cực lớn.
+
+**2. Chọn NoSQL (MongoDB / DynamoDB) nếu:**
+*   Stack hiện tại của bạn **đã dùng sẵn NoSQL** cho các dữ liệu khác.
+*   **Cách làm:** Lưu session vào collection/table có bật tính năng **TTL (Time-to-Live)** để tự động xóa, và dùng lệnh `DELETE` khi cần thu hồi thủ công.
+*   **Lý do:** Hiệu năng đọc/ghi key-value nhanh hơn SQL và tự dọn dẹp dữ liệu cũ mà không cần viết cron job.
+
+---
+
+**Guyết định cuối cùng:** 
+Trừ khi hệ thống đang chạy hoàn toàn bằng NoSQL, phương án an toàn, ít tốn chi phí vận hành nhất và không làm tăng thêm "thành phần lạ" trong hạ tầng (vốn đang bị cấm Redis kiểm soát) là **lưu session vào Database quan hệ (SQL) sẵn có**.
+--- reviewing draft ---
+
+Gemini: **Database quan hệ (SQL) sẵn có** là lựa chọn nên ưu tiên trong phần lớn trường hợp, nhưng quyết định cuối cùng phụ thuộc vào **mức độ traffic** của hệ thống — yếu tố bị ảnh hưởng lớn nhất khi mất đi Redis.
+
+Cụ thể cách cân nhắc:
+
+**1. Chọn Database quan hệ (SQL) nếu:**
+*   **Quy mô:** Traffic ở mức nhỏ, trung bình, hoặc hệ thống chạy Monolith.
+*   **Cách hoạt động:** Lưu bảng `sessions` trực tiếp trên SQL DB hiện tại. Thu hồi lập tức bằng lệnh `DELETE FROM sessions WHERE id = ?`.
+*   **Lợi ích:** Không cần cài mới bất kỳ hạ tầng nào (tránh rủi ro chính sách), tận dụng transaction sẵn có, dữ liệu an toàn.
+
+**2. Điểm mù cần lưu ý (Performance Bottleneck):**
+Khi không có Redis (in-memory cache), mọi request cần xác thực session đều phải chọc thẳng vào SQL DB để đọc bảng `sessions`. Nếu traffic cao, việc đọc/ghi liên tục này sẽ gây **IO bottleneck** và làm chậm cả hệ thống database chính.
+
+**3. Khi nào nên chuyển sang NoSQL?**
+*   Chỉ chọn NoSQL (MongoDB, DynamoDB) khi hệ thống của bạn có **traffic lớn** và **đã sẵn có NoSQL trong tech stack**. NoSQL xử lý việc đọc/ghi key-value tốt hơn SQL và có tính năng TTL tự động xóa session hết hạn mà không cần cron job.
+*   *Lưu ý:* Nếu công ty cấm Redis vì chính sách hạ tầng nói chung, việc tự ý đưa thêm NoSQL vào chỉ vì bài toán session có thể vi phạm quy tắc "không thêm công cụ lạ".
+
+---
+
+**Kết luận hành động:**
+*   Nếu **traffic vừa/nhỏ** hoặc ưu tiên tuyệt đối việc không thêm hạ tầng mới: **Chọn SQL DB**.
+*   Nếu **traffic lớn** mà SQL DB chính không chịu được tải session: Đề xuất giải pháp NoSQL sẵn có (nếu công ty cho phép) hoặc tối ưu SQL (đánh index tối đa cho `session_id`, tách riêng cụm DB cho session nếu cần).
+tokens: prompt 6455 | thinking 2239 | answer 852  (2 passes)
+
+You: 
+[draft] Khi tải tăng 10x mà không có Redis: **NoSQL (DynamoDB / MongoDB)** scale tốt nhất nhờ khả năng mở rộng ngang (horizontal scaling) và tối ưu cho key-value lookup.
+
+*Trường hợp công ty cấm tuyệt đối NoSQL mới:* Dùng **SQL sẵn có kết hợp Sticky Sessions + Local Cache** ở từng app instance để giảm tải đọc cho DB, chỉ truy vấn DB khi tạo mới hoặc thu hồi session.
+--- reviewing draft ---
+
+Gemini: Tùy thuộc vào chính sách hạ tầng của công ty:
+
+1. **Nếu được phép đưa công nghệ mới vào:** **NoSQL (DynamoDB / MongoDB)** scale tốt nhất nhờ khả năng mở rộng ngang (horizontal scaling) và tối ưu cho truy vấn key-value.
+2. **Nếu bị cấm tuyệt đối hạ tầng mới (chỉ được dùng SQL sẵn có):** Dùng **SQL kết hợp Sticky Sessions + Local Cache (In-Memory)** ở từng app instance. Cách này giữ nguyên DB hiện tại nhưng giảm tối đa tải đọc cho DB, chỉ query DB khi tạo mới hoặc thu hồi session.
+tokens: prompt 7151 | thinking 1693 | answer 226  (2 passes)
+
+You: 

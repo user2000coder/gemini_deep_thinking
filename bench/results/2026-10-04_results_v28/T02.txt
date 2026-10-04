@@ -1,0 +1,22 @@
+# T02: reading trap (regression vs V27.4: both readings expected)
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] Hôm nay bạn vẫn có **3 quả táo**. 
+
+Lý do: Đề bài nêu rõ "Tôi **có** 3 quả táo" (ở hiện tại). Việc hôm qua bạn ăn 1 quả không ảnh hưởng đến số táo bạn đang có lúc này (có thể bạn đã mua thêm hoặc đây là số táo hiện có).
+--- reviewing draft ---
+
+Gemini: Hôm nay bạn vẫn có **3 quả táo**.
+
+Giải thích chi tiết theo các góc nhìn:
+
+1. **Góc nhìn theo dữ kiện hiện tại (Chính xác):** Đề bài đã khẳng định rõ ràng ở thì hiện tại: "Tôi **có** 3 quả táo". Việc hôm qua bạn ăn 1 quả không làm thay đổi sự thật về số lượng đang có ở thời điểm hiện tại này (có thể trước đó bạn có 4 quả, hoặc bạn vừa mua thêm). 
+
+2. **Góc nhìn tránh bẫy đố mẹo:** Nhiều người thường có xu hướng làm phép tính trừ ngay khi thấy con số ("3 trừ 1 còn 2"). Tuy nhiên, dữ kiện "hôm qua ăn 1 quả" là thông tin nhiễu hoặc là hành động đã xảy ra trong quá khứ, không dùng để trừ trực tiếp vào số lượng hiện tại đã được đề bài định lượng sẵn là 3 quả.
+tokens: prompt 5054 | thinking 1814 | answer 271  (2 passes)
+
+You: 

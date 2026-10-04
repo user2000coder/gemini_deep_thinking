@@ -1,0 +1,14 @@
+# T01: simple task -> short direct answer, user's language (EN)
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] The capital of Australia is **Canberra**.
+--- reviewing draft ---
+
+Gemini: The capital of Australia is Canberra.
+tokens: prompt 5595 | thinking 423 | answer 16  (2 passes)
+
+You: 

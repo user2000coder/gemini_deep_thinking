@@ -1,0 +1,24 @@
+# T02_r2: reading trap (regression vs V27.4: both readings expected)
+# instruction: instruction.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] Tùy thuộc vào cách hiểu câu đầu tiên của bạn:
+
+1. Nếu "Tôi có 3 quả táo" là trạng thái **hiện tại**: Hôm nay bạn có **3 quả** (việc ăn 1 quả hôm qua không ảnh hưởng đến số lượng bạn đang khẳng định là đang có lúc này).
+2. Nếu ý bạn là ban đầu có 3 quả, hôm qua ăn 1 quả: Hôm nay bạn còn **2 quả** (3 - 1). 
+
+Thường thì theo dạng câu đố mẹo, đáp án là **2 quả** (hoặc **3 quả** nếu bạn đang nói về số lượng đang cầm trên tay lúc này). Bạn đang đố theo hướng nào?
+--- reviewing draft ---
+
+Gemini: Tùy thuộc vào cách bạn hiểu và liên kết các câu trong đề bài:
+
+1. Nếu câu "Tôi có 3 quả táo" là lời khẳng định về trạng thái **hiện tại** (ngay lúc nói): Hôm nay bạn có **3 quả**. Việc ăn 1 quả hôm qua không làm thay đổi hay phủ nhận thực tế bạn đang tuyên bố là mình đang có 3 quả.
+2. Nếu câu đầu tiên mang ý nghĩa là số lượng mốc ban đầu (trước ngày hôm qua): Hôm nay bạn còn **2 quả** (3 - 1).
+
+Nếu đây là một câu đố mẹo, đáp án thường hướng tới **2 quả** do hành động ăn táo làm giảm số lượng thực tế. Còn xét về mặt logic ngữ pháp nghiêm ngặt, câu khẳng định hiện tại ở câu đầu tiên quyết định kết quả là **3 quả**.
+tokens: prompt 5027 | thinking 2502 | answer 333  (2 passes)
+
+You: 

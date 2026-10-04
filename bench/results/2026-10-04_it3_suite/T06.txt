@@ -1,0 +1,22 @@
+# T06: learning mode: user asks for a hint only -> no full solution
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] Công thức bước đệ quy của bạn (`n % 10 + s(n // 10)`) rất đúng hướng để tách từng chữ số! 
+
+Tuy nhiên, hàm của bạn đang thiếu một thứ quan trọng: **điểm dừng** (base case). 
+
+Khi `n` giảm dần qua mỗi lần chia 10, đến giá trị nào thì việc tính toán phải dừng lại, và lúc đó hàm nên trả về giá trị bao nhiêu thay vì tiếp tục gọi chính nó?
+--- reviewing draft ---
+
+Gemini: Công thức bước đệ quy của bạn (`n % 10 + s(n // 10)`) hoàn toàn đúng hướng để tách từng chữ số! 
+
+Tuy nhiên, hàm của bạn đang thiếu một điểm mấu chốt của đệ quy: **điểm dừng** (base case). 
+
+Khi `n` giảm dần qua mỗi lần chia 10, đến giá trị nào thì việc gọi đệ quy phải dừng lại, và lúc đó hàm nên trả về giá trị bao nhiêu thay vì tiếp tục gọi chính nó?
+tokens: prompt 5794 | thinking 1244 | answer 217  (2 passes)
+
+You: 

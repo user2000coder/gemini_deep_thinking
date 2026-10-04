@@ -1,0 +1,45 @@
+# T12: user insight: credit user, call it hypothesis, correlation != causation, propose test
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] Chưa chắc. Bạn đang quan sát thấy **tương quan (correlation)**, nhưng chưa đủ dữ kiện để khẳng định đó là **nguyên nhân - kết quả (causation)**.
+
+Về mặt sinh học, thiếu ngủ chắc chắn làm giảm sự tập trung, suy giảm trí nhớ làm việc (working memory) và khả năng nhận thức — những yếu tố dễ dẫn đến lỗi khi code. Tuy nhiên, mối quan hệ này có thể bị ảnh hưởng bởi các **yếu tố nhiễu (confounding variables)**:
+
+1. **Nguyên nhân của việc ngủ ít:** Hôm nào bạn ngủ dưới 6 tiếng, có phải vì hôm đó **gặp task cực khó hoặc deadline gấp** không? Nếu vậy, chính áp lực và độ phức tạp của task mới là thứ gây ra nhiều bug, chứ không hẳn do thiếu ngủ.
+2. **Thiên vị xác nhận (Confirmation bias):** Bạn có nhớ những ngày ngủ dưới 6 tiếng nhưng code vẫn mượt, hoặc những ngày ngủ đủ 8 tiếng nhưng vẫn dính đống bug không? Con người thường dễ ghi nhớ các trường hợp khớp với giả thuyết của mình hơn.
+
+**Cách để kiểm chứng (biến giả thuyết thành evidence):**
+Trong 2-3 tuần tới, hãy ghi lại mỗi ngày 4 điểm:
+* Số giờ ngủ.
+* Độ khó của task hôm đó (Thấp / Trung bình / Cao).
+* Mức độ stress/áp lực (1-5).
+* Số lượng bug thực tế phát hiện được (hoặc số lần phải sửa lỗi logic).
+
+Nếu sau khi loại trừ độ khó và stress mà thiếu ngủ vẫn giữ nguyên tỷ lệ bug cao, lúc đó bạn mới có cơ sở kết luận thiếu ngủ là nguyên nhân.
+--- reviewing draft ---
+
+Gemini: Chưa chắc. Bạn đang quan sát thấy **tương quan**, nhưng chưa đủ dữ kiện để khẳng định đó là **nguyên nhân - kết quả**.
+
+Có ba yếu tố nhiễu và giả định ngầm cần xem xét kỹ trước khi kết luận:
+
+1. **Khối lượng code (Volume):** Hôm ngủ dưới 6 tiếng, bạn có đang chạy deadline nên viết **nhiều dòng code hơn bình thường** không? Viết nhiều code hơn hoặc làm việc vội vã hơn đương nhiên sẽ tỷ lệ thuận với việc lộ ra nhiều bug hơn, độc lập với số giờ ngủ.
+2. **Độ khó và áp lực:** Thiếu ngủ thường xảy ra vào những ngày có task cực khó, hệ thống sập hoặc áp lực giải quyết sự cố. Chính độ phức tạp của bài toán mới là thứ sinh ra bug.
+3. **Ngưỡng ngủ cá nhân:** Mốc "dưới 6 tiếng" có thực sự là thiếu ngủ đối với cơ địa của bạn không? Nhu cầu ngủ của mỗi người khác nhau; nếu cơ địa bạn quen với mức 6 tiếng, việc đó chưa chắc đã làm suy giảm nhận thức.
+
+Bên cạnh đó, **Thiên vị xác nhận (Confirmation bias)** dễ khiến bạn nhớ rất rõ những ngày ngủ ít cộng thêm dính bug, nhưng lại quên những ngày ngủ ít mà code vẫn mượt, hoặc ngủ đủ 8 tiếng nhưng vẫn đầy lỗi.
+
+**Cách để kiểm chứng (biến giả thuyết thành evidence):**
+Trong 2 tuần tới, hãy ghi lại mỗi ngày các dữ liệu sau:
+* Số giờ ngủ chính xác.
+* Khối lượng công việc (ước lượng số task hoặc số dòng code thay đổi).
+* Độ khó task (Thấp / Trung bình / Cao).
+* Số lượng bug thực tế phát hiện được.
+
+Nếu sau khi loại trừ độ khó và khối lượng code mà tỷ lệ bug ở những ngày ngủ dưới 6 tiếng vẫn cao hơn hẳn, lúc đó bạn mới có cơ sở kết luận thiếu ngủ là nguyên nhân trực tiếp. Còn hiện tại, đây mới chỉ là một giả định cần kiểm chứng (UNVERIFIED).
+tokens: prompt 6041 | thinking 2013 | answer 813  (2 passes)
+
+You: 

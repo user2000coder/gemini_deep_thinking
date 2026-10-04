@@ -1,0 +1,50 @@
+# T03: Bayes + hidden assumption (random screening vs symptomatic)
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] Xác suất anh ấy thực sự mắc bệnh là **khoảng 1,94%** (chưa tới 2%).
+
+### Tóm tắt cách tính (dùng dân số giả định 100.000 người):
+
+*   **Số người mắc bệnh thực tế:** 100.000 x (1 / 1.000) = **100 người**.
+*   **Số người KHÔNG mắc bệnh:** 100.000 - 100 = **99.900 người**.
+*   **Số người mắc bệnh xét nghiệm dương tính (True Positive):** 100 x 99% = **99 người**.
+*   **Số người không mắc bệnh nhưng vẫn dương tính giả (False Positive):** 99.900 x 5% = **4.995 người**.
+*   **Tổng số kết quả dương tính:** 99 + 4.995 = **5.094 người**.
+
+Xác suất thực tế = (Số người thực sự mắc và dương tính) / (Tổng số dương tính) = 99 / 5.094 ≈ **1,94%**.
+
+---
+
+### Giả định quan trọng cần lưu ý:
+Kết quả trên dựa trên **giả định anh ấy được xét nghiệm tầm soát ngẫu nhiên** trong cộng đồng (xác suất trước khi xét nghiệm - *prior probability* - đúng bằng tỷ lệ 1/1000). 
+
+Nếu anh ấy **có triệu chứng** hoặc **thuộc nhóm nguy cơ cao** (ví dụ: tiếp xúc gần với người bệnh), xác suất thực tế sẽ cao hơn rất nhiều vì tỷ lệ mắc bệnh trong nhóm của anh ấy lớn hơn 1/1000.
+--- reviewing draft ---
+
+Gemini: Xác suất anh bạn thực sự mắc bệnh theo dữ liệu toán học là **khoảng 1,94%**, nhưng con số này chỉ đúng trong một điều kiện giả định cụ thể.
+
+### 1. Cách tính theo dữ liệu (giả định tầm soát ngẫu nhiên):
+Giả sử áp dụng xét nghiệm cho 100.000 người dân:
+*   **Số người thực sự mắc bệnh:** 100.000 x (1 / 1.000) = **100 người**.
+*   **Số người không mắc bệnh:** 100.000 - 100 = **99.900 người**.
+*   **Số người mắc bệnh có kết quả dương tính đúng (True Positive):** 100 x 99% = **99 người**.
+*   **Số người không mắc bệnh nhưng có kết quả dương tính giả (False Positive):** 99.900 x 5% = **4.995 người**.
+*   **Tổng số kết quả dương tính:** 99 + 4.995 = **5.094 người**.
+
+Xác suất thực tế = 99 / 5.094 ≈ **1,94%** (chưa tới 2%).
+
+---
+
+### 2. Giả định ẩn quyết định (Tại sao thực tế sẽ khác):
+Kết quả 1,94% trên chỉ đúng nếu anh bạn **tham gia tầm soát ngẫu nhiên trong cộng đồng** mà hoàn toàn không có triệu chứng hay biết trước bất kỳ yếu tố phơi nhiễm nào (xác suất mắc bệnh ban đầu đúng bằng tỷ lệ chung 1/1.000).
+
+Trong thực tế, hầu như không ai tự đi xét nghiệm hoàn toàn ngẫu nhiên. Nếu anh bạn đi xét nghiệm vì **có triệu chứng** hoặc **thuộc nhóm nguy cơ cao** (ví dụ: tiếp xúc gần với người bệnh):
+*   Tỷ lệ mắc bệnh ban đầu của riêng anh ấy lớn hơn rất nhiều so với mức 1/1000 của toàn dân số.
+*   Xác suất thực sự mắc bệnh sau khi có kết quả dương tính sẽ **cao hơn rất nhiều** so với con số 1,94% (có thể lên tới hàng chục hoặc hàng trăm lần tùy thuộc vào mức độ rủi ro ban đầu).
+tokens: prompt 6068 | thinking 2615 | answer 904  (2 passes)
+
+You: 

@@ -1,0 +1,107 @@
+[
+  {
+    "id": "T02_r1",
+    "purpose": "reading trap (regression vs V27.4: both readings expected)",
+    "turns": 1,
+    "seconds": 13.3,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 4944 | thinking 2331 | answer 295  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T02_r2",
+    "purpose": "reading trap (regression vs V27.4: both readings expected)",
+    "turns": 1,
+    "seconds": 13.6,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 5027 | thinking 2502 | answer 333  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T02_r3",
+    "purpose": "reading trap (regression vs V27.4: both readings expected)",
+    "turns": 1,
+    "seconds": 13.4,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 4942 | thinking 2575 | answer 243  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T03_r1",
+    "purpose": "Bayes + hidden assumption (random screening vs symptomatic)",
+    "turns": 1,
+    "seconds": 18.8,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 5482 | thinking 2879 | answer 1219  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T03_r2",
+    "purpose": "Bayes + hidden assumption (random screening vs symptomatic)",
+    "turns": 1,
+    "seconds": 18.4,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 5449 | thinking 3008 | answer 1167  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T03_r3",
+    "purpose": "Bayes + hidden assumption (random screening vs symptomatic)",
+    "turns": 1,
+    "seconds": 17.3,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 5444 | thinking 3210 | answer 1042  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T09_r1",
+    "purpose": "multi-turn: constraint + rejected approach must not be revived",
+    "turns": 3,
+    "seconds": 47.4,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 5272 | thinking 2441 | answer 796  (2 passes)",
+      "tokens: prompt 6168 | thinking 2149 | answer 935  (2 passes)",
+      "tokens: prompt 7172 | thinking 2570 | answer 364  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T09_r2",
+    "purpose": "multi-turn: constraint + rejected approach must not be revived",
+    "turns": 3,
+    "seconds": 40.4,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 5301 | thinking 1581 | answer 837  (2 passes)",
+      "tokens: prompt 6152 | thinking 1857 | answer 808  (2 passes)",
+      "tokens: prompt 7016 | thinking 1995 | answer 121  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T09_r3",
+    "purpose": "multi-turn: constraint + rejected approach must not be revived",
+    "turns": 3,
+    "seconds": 48.3,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 5284 | thinking 2467 | answer 794  (2 passes)",
+      "tokens: prompt 6273 | thinking 2317 | answer 1117  (2 passes)",
+      "tokens: prompt 7251 | thinking 2393 | answer 304  (2 passes)"
+    ],
+    "errors": []
+  }
+]

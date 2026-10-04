@@ -1,0 +1,24 @@
+# T02_r3: reading trap (regression vs V27.4: both readings expected)
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] Hôm nay bạn vẫn có **3 quả táo**. 
+
+Lý do: Câu đầu tiên đã khẳng định trực tiếp trạng thái hiện tại của bạn là "Tôi có 3 quả táo", việc ăn 1 quả hôm qua là thông tin thêm và không thay đổi thực tế số táo bạn đang có lúc này.
+--- reviewing draft ---
+
+Gemini: Câu hỏi này có thể hiểu theo 2 cách tùy thuộc vào cách bạn liên kết các mốc thời gian:
+
+1. **Cách hiểu 1 (Theo chuỗi sự kiện / tư duy bài toán đố):** 
+Nếu câu "Tôi có 3 quả táo" là thông tin về tổng số táo ban đầu (hoặc trạng thái trước sự việc ăn táo), và việc ăn 1 quả hôm qua làm giảm số táo đó, thì hôm nay số táo sẽ bị bớt đi. 
+→ Hôm nay bạn còn **2 quả**.
+
+2. **Cách hiểu 2 (Theo khẳng định trực tiếp ở hiện tại):** 
+Câu đầu tiên "Tôi có 3 quả táo" sử dụng thì hiện tại, xác định rõ trạng thái ngay lúc nói. Việc bạn ăn 1 quả hôm qua là chuyện đã qua và không phủ nhận hay thay đổi được khẳng định hiện tại là bạn đang có 3 quả (có thể bạn đã mua thêm hoặc số lượng 3 quả là thực tế đang có). 
+→ Hôm nay bạn vẫn có **3 quả**.
+tokens: prompt 5048 | thinking 2394 | answer 288  (2 passes)
+
+You: 

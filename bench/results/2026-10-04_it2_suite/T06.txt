@@ -1,0 +1,23 @@
+# T06: learning mode: user asks for a hint only -> no full solution
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] Logic bước đệ quy của bạn (`n % 10 + s(n // 10)`) rất chính xác rồi! 
+
+Tuy nhiên, hàm bị `RecursionError` vì nó thiếu một thứ quan trọng. Hãy tự hỏi:
+1. Khi nào hàm nên **dừng lại** thay vì tiếp tục gọi chính nó? (Nếu $n$ bằng mấy thì không cần tính nữa?)
+2. Bạn đã bổ sung điều kiện dừng (base case) cho trường hợp đó chưa?
+--- reviewing draft ---
+
+Gemini: Logic bước đệ quy của bạn (`n % 10 + s(n // 10)`) rất chính xác rồi! 
+
+Tuy nhiên, hàm bị `RecursionError` vì nó thiếu một thứ quan trọng. Hãy tự hỏi:
+
+1. Khi nào hàm nên **dừng lại** thay vì tiếp tục gọi chính nó? (Nếu `n` bằng mấy thì không cần chia nhỏ nữa?)
+2. Khi đạt đến điểm dừng đó, hàm nên trả về kết quả là bao nhiêu thay vì gọi tiếp `s(...)`?
+tokens: prompt 5505 | thinking 1073 | answer 219  (2 passes)
+
+You: 

@@ -1,0 +1,66 @@
+# T03_r1: Bayes + hidden assumption (random screening vs symptomatic)
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] Xác suất anh bạn thực sự mắc bệnh là khoảng **1,94%** (chưa tới 2%). 
+
+Mặc dù xét nghiệm có độ nhạy rất cao (99%), kết quả này thường gây bất ngờ vì trực giác chúng ta hay nhầm lẫn độ chính xác của xét nghiệm với xác suất thực tế của bệnh.
+
+Dưới đây là cách tính chi tiết bằng phương pháp giả định trên **100.000 dân số** để dễ hình dung:
+
+1. **Số người mắc bệnh thực tế:**
+   100.000 người x (1 / 1.000) = **100 người** mắc bệnh.
+2. **Số người không mắc bệnh:**
+   100.000 - 100 = **99.900 người** không mắc bệnh.
+3. **Số người mắc bệnh xét nghiệm ra dương tính (True Positive):**
+   Độ nhạy 99% nghĩa là trong 100 người bệnh, có **99 người** xét nghiệm dương tính.
+4. **Số người không mắc bệnh nhưng xét nghiệm vẫn ra dương tính (False Positive - Dương tính giả):**
+   Tỷ lệ dương tính giả là 5% trên số người lành: 99.900 x 5% = **4.995 người**.
+5. **Tổng số người có kết quả dương tính:**
+   99 (bệnh thật) + 4.995 (dương tính giả) = **5.094 người**.
+
+**Xác suất thực sự:**
+Trong tổng số 5.094 người có kết quả dương tính, chỉ có 99 người thực sự mắc bệnh:
+99 / 5.094 ≈ **1,94%**.
+
+---
+
+### Ý nghĩa thực tế (Theorem Bayes):
+* **Bệnh rất hiếm** (1/1000) trong khi **tỷ lệ dương tính giả** (5%) lại lớn gấp 50 lần tỷ lệ mắc bệnh. 
+* Do đó, số lượng người khỏe mạnh bị dương tính giả (4.995 người) lớn hơn rất nhiều lần số người bệnh thực sự (99 người). Khi một người ngẫu nhiên có kết quả dương tính, khả năng cao họ nằm trong nhóm dương tính giả.
+* Đó là lý do vì sao với các bệnh hiếm, một kết quả xét nghiệm dương tính đơn lẻ **luôn cần phải làm thêm xét nghiệm khẳng định lại** (thường dùng phương pháp chuyên sâu hơn) trước khi đưa ra kết luận cuối cùng.
+--- reviewing draft ---
+
+Gemini: Xác suất anh bạn thực sự mắc bệnh là khoảng **1,94%** (chưa tới 2%). 
+
+Mặc dù xét nghiệm có độ nhạy rất cao (99%), kết quả này thường gây bất ngờ vì trực giác chúng ta hay nhầm lẫn độ chính xác của xét nghiệm với xác suất thực tế mắc bệnh.
+
+Dưới đây là cách tính chi tiết dựa trên giả định quần thể **100.000 dân số** để dễ hình dung:
+
+1. **Số người mắc bệnh thực tế:**
+   100.000 x (1 / 1.000) = **100 người** mắc bệnh.
+2. **Số người không mắc bệnh:**
+   100.000 - 100 = **99.900 người** không mắc bệnh.
+3. **Số người mắc bệnh xét nghiệm ra dương tính (True Positive):**
+   Độ nhạy 99% nghĩa là trong 100 người bệnh thực tế, có **99 người** xét nghiệm dương tính.
+4. **Số người không mắc bệnh nhưng xét nghiệm vẫn ra dương tính (False Positive - Dương tính giả):**
+   Tỷ lệ dương tính giả 5% tính trên nhóm người lành: 99.900 x 5% = **4.995 người**.
+5. **Tổng số người có kết quả dương tính:**
+   99 (bệnh thật) + 4.995 (dương tính giả) = **5.094 người**.
+
+**Xác suất thực tế:**
+Trong tổng số 5.094 người có kết quả dương tính, chỉ có 99 người thực sự mắc bệnh:
+99 / 5.094 ≈ **1,94%**.
+
+---
+
+### Ý nghĩa thực tế và Định lý Bayes:
+* **Bệnh rất hiếm** (tỷ lệ 1/1000) trong khi **tỷ lệ dương tính giả** (5%) lại lớn gấp 50 lần tỷ lệ mắc bệnh. 
+* Do đó, số lượng người khỏe mạnh bị dương tính giả (4.995 người) áp đảo hoàn toàn số người bệnh thực sự (99 người). Khi một người ngẫu nhiên có kết quả dương tính, khả năng cao họ nằm trong nhóm dương tính giả.
+* **Hành động tiếp theo:** Với các bệnh có tỷ lệ lưu hành thấp, một kết quả xét nghiệm dương tính đơn lẻ **luôn cần phải làm thêm xét nghiệm khẳng định chuyên sâu** trước khi đưa ra bất kỳ kết luận chẩn đoán hay điều trị nào.
+tokens: prompt 5952 | thinking 1990 | answer 1132  (2 passes)
+
+You: 

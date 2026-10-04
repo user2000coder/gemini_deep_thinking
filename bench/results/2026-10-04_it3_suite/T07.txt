@@ -1,0 +1,16 @@
+# T07: underspecified decision: conditional answer or ask, not a confident pick
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+(network error ConnectError - retrying in 5s, attempt 2/3)
+
+[draft] PostgreSQL (Trừ khi schema biến động cực đoan).
+--- reviewing draft ---
+
+Gemini: PostgreSQL (Trừ khi schema biến động cực đoan).
+tokens: prompt 5623 | thinking 1377 | answer 26  (2 passes)
+
+You: 

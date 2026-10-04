@@ -1,0 +1,18 @@
+# T01: simple task -> short direct answer, user's language (EN)
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] The capital of Australia is **Canberra**. 
+
+*(A common misconception is that it is Sydney or Melbourne, but Canberra was chosen and built as a planned national capital in the early 20th century as a compromise between the two rival cities.)*
+--- reviewing draft ---
+
+Gemini: The capital of Australia is **Canberra**. 
+
+*(While many people mistakenly assume the capital is Sydney or Melbourne due to their size and economic prominence, Canberra was specifically planned and built as the national capital in the early 20th century as a compromise between those two rival cities.)*
+tokens: prompt 5009 | thinking 683 | answer 111  (2 passes)
+
+You: 

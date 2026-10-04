@@ -1,0 +1,67 @@
+# T13: held-out reference class: population failure rate -> one specific founder
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] **Không phải.** Xác suất thất bại của bạn bạn **thấp hơn đáng kể** mức 90%. 
+
+Lý do nằm ở việc nhầm lẫn giữa **tỷ lệ cơ sở (base rate)** chung và **xác suất có điều kiện (conditional probability)** của một trường hợp cụ thể.
+
+Dưới đây là phân tích chi tiết:
+
+### 1. Con số 90% gồm những ai?
+Thống kê "90% startup thất bại" tính trên **tất cả** các ý tưởng được gọi là "startup": từ những người làm app cà phê ế ẩm, cửa hàng online bỏ dở, cho đến các dự án công nghệ nghiêm túc. Phần lớn trong số đó chết từ trước khi có đồng doanh thu đầu tiên (pre-revenue) hoặc chưa từng có khách hàng trả tiền.
+
+### 2. Bạn của bạn đang ở nhóm nào?
+Bạn bạn đã vượt qua những "bộ lọc sinh tồn" ngặt nghèo nhất mà 90% kia không qua được:
+* **Đã có 3 khách hàng trả tiền (Paying customers):** Đây là minh chứng mạnh nhất cho thấy sản phẩm giải quyết một nỗi đau thực sự (pain point) và thị trường chấp nhận trả tiền. Tỷ lệ sống sót của startup đã có doanh thu sớm cao hơn rất nhiều mức trung bình.
+* **Ngành B2B phần mềm:** Mô hình B2B có biên lợi nhuận cao, dễ scale và thường rõ ràng về nhu cầu hơn B2C.
+* **Lý lịch từ Google:** Cho thấy năng lực kỹ thuật, tư duy hệ thống và khả năng tiếp cận mạng lưới nhân sự giỏi.
+
+### 3. Những ẩn số (Assumption) cần lưu ý
+Dù vậy, xác suất thất bại không phải bằng 0. Bạn bạn vẫn phải đối mặt với các rủi ro:
+* **3 khách hàng đầu tiên là ai?** Nếu là bạn bè, người quen mua ủng hộ (founder-led sales ban đầu), thì đó chưa phải là Product-Market Fit thực sự.
+* **Unit Economics (Kinh tế đơn vị):** Chi phí tìm khách hàng (CAC) có lớn hơn giá trị vòng đời khách hàng (LTV) không?
+* **Thị trường đủ lớn không?** (TAM - Total Addressable Market).
+
+### Kết luận
+Con số 90% là bức tranh toàn cảnh của một cái chợ hỗn độn. Khi một startup đã có **sản phẩm hoạt động và khách hàng trả tiền**, họ đã tự tách mình ra khỏi phần đáy của cái chợ đó. 
+
+Xác suất thất bại thực tế lúc này thấp hơn 90% rất nhiều, nhưng rủi ro chuyển dịch từ "liệu ai có mua không?" sang "liệu có scale được không?".
+--- reviewing draft ---
+
+(review pass returned nothing - using the draft)
+Gemini: **Không phải.** Xác suất thất bại của bạn bạn **thấp hơn đáng kể** mức 90%. 
+
+Lý do nằm ở việc nhầm lẫn giữa **tỷ lệ cơ sở (base rate)** chung và **xác suất có điều kiện (conditional probability)** của một trường hợp cụ thể.
+
+Dưới đây là phân tích chi tiết:
+
+### 1. Con số 90% gồm những ai?
+Thống kê "90% startup thất bại" tính trên **tất cả** các ý tưởng được gọi là "startup": từ những người làm app cà phê ế ẩm, cửa hàng online bỏ dở, cho đến các dự án công nghệ nghiêm túc. Phần lớn trong số đó chết từ trước khi có đồng doanh thu đầu tiên (pre-revenue) hoặc chưa từng có khách hàng trả tiền.
+
+### 2. Bạn của bạn đang ở nhóm nào?
+Bạn bạn đã vượt qua những "bộ lọc sinh tồn" ngặt nghèo nhất mà 90% kia không qua được:
+* **Đã có 3 khách hàng trả tiền (Paying customers):** Đây là minh chứng mạnh nhất cho thấy sản phẩm giải quyết một nỗi đau thực sự (pain point) và thị trường chấp nhận trả tiền. Tỷ lệ sống sót của startup đã có doanh thu sớm cao hơn rất nhiều mức trung bình.
+* **Ngành B2B phần mềm:** Mô hình B2B có biên lợi nhuận cao, dễ scale và thường rõ ràng về nhu cầu hơn B2C.
+* **Lý lịch từ Google:** Cho thấy năng lực kỹ thuật, tư duy hệ thống và khả năng tiếp cận mạng lưới nhân sự giỏi.
+
+### 3. Những ẩn số (Assumption) cần lưu ý
+Dù vậy, xác suất thất bại không phải bằng 0. Bạn bạn vẫn phải đối mặt với các rủi ro:
+* **3 khách hàng đầu tiên là ai?** Nếu là bạn bè, người quen mua ủng hộ (founder-led sales ban đầu), thì đó chưa phải là Product-Market Fit thực sự.
+* **Unit Economics (Kinh tế đơn vị):** Chi phí tìm khách hàng (CAC) có lớn hơn giá trị vòng đời khách hàng (LTV) không?
+* **Thị trường đủ lớn không?** (TAM - Total Addressable Market).
+
+### Kết luận
+Con số 90% là bức tranh toàn cảnh của một cái chợ hỗn độn. Khi một startup đã có **sản phẩm hoạt động và khách hàng trả tiền**, họ đã tự tách mình ra khỏi phần đáy của cái chợ đó. 
+
+Xác suất thất bại thực tế lúc này thấp hơn 90% rất nhiều, nhưng rủi ro chuyển dịch từ "liệu ai có mua không?" sang "liệu có scale được không?".
+tokens: prompt 6267 | thinking 2565 | answer 589  (2 passes)
+
+You: 
+
+[stderr]
+C:\Users\tranv\Desktop\gemini_deep_thinking\.venv\Lib\site-packages\google\genai\_common.py:676: UserWarning: MALFORMED_RESPONSE is not a valid FinishReason
+  warnings.warn(f'{value} is not a valid {cls.__name__}')

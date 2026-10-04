@@ -1,0 +1,73 @@
+# T08: debug: user wants 4 changes at once -> push back, reproduce/localize first
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] **Không nên làm tất cả cùng lúc.** 
+
+Cách làm này (thay đổi toàn bộ kiến trúc và hạ tầng cùng một lúc để giải quyết một triệu chứng) có rủi ro lớn: **Nếu hệ thống ổn định hơn, bạn sẽ không biết yếu tố nào đã cứu nó. Ngược lại, nếu phát sinh lỗi mới, bạn sẽ rơi vào ma trận không biết gỡ từ đâu.**
+
+Hiện tại, bạn mới chỉ thấy **triệu chứng** (lỗi 500 khi tải cao), nhưng chưa rõ **nguyên nhân gốc rễ (root cause)**. Mỗi giải pháp bạn nêu nhắm vào một vấn đề khác nhau:
+
+### Đánh giá nhanh 4 giải pháp của bạn:
+
+1. **Tăng RAM:** Chỉ có tác dụng nếu server bị thiếu RAM thật (OOM - Out of Memory). Nếu ứng dụng bị rò rỉ bộ nhớ (memory leak) hoặc nghẽn kết nối database, tăng RAM chỉ kéo dài thời gian trước khi sập lại.
+2. **Nâng cấp Python 3.13:** Tốt cho hiệu năng tổng thể, nhưng các thư viện bên thứ ba (đặc biệt là các thư viện có C-extension) có thể chưa tương thích hoàn toàn, dễ sinh lỗi lạ.
+3. **Chuyển sang async:** Chỉ có hiệu quả nếu bottleneck của bạn là **I/O-bound** (chờ query database, gọi API bên thứ ba, đọc ghi file). Nếu hệ thống nghẽn vì **CPU-bound** (xử lý logic nặng, vòng lặp lớn), async không giúp gì mà còn làm code phức tạp hơn, dễ dính bug concurrency.
+4. **Thêm cache:** Rất tốt để giảm tải, nhưng nếu không thiết kế kỹ (dính cache stampede, invalidate sai), nó có thể tạo ra lỗi dữ liệu hoặc làm sập database lúc cache hết hạn.
+
+---
+
+### Bạn nên làm gì thay vì "đập đi xây lại"?
+
+Hãy dùng quy trình chẩn đoán đơn giản trước khi sửa code:
+
+#### Bước 1: Đọc log khi lỗi 500 xảy ra
+* Lỗi 500 là lỗi ở phía server, chắc chắn server phải ghi lại traceback. 
+* Đó là lỗi gì? `TimeoutError`? `Database connection pool exhausted`? `MemoryError`? Hay `Uncaught Exception`? 
+* **Biết chính xác loại lỗi quyết định 80% hướng giải quyết.**
+
+#### Bước 2: Quan sát tài nguyên (Metrics) khi tải cao
+Khi dồn tải vào, cái gì chạm trần trước?
+* **CPU chạm 100%?** -> Vấn đề logic code, cần tối ưu thuật toán hoặc tăng worker.
+* **RAM tăng liên tục không giảm?** -> Memory leak.
+* **Database hết kết nối (Max connections)?** -> Cần cấu hình lại connection pool hoặc thêm cache/thêm index.
+
+#### Bước 3: Sửa có chọn lọc (Minimal Change)
+* Nếu nghẽn DB/I/O và code sẵn sàng → Cân nhắc **async** hoặc **thêm cache** trước.
+* Nếu do thiếu connection pool → Tăng pool size hoặc dùng pooling (như PgBouncer cho PostgreSQL).
+* Tránh nâng cấp Python version và đổi kiến trúc (`sync` sang `async`) cùng một lúc vì đây đều là những thay đổi nền tảng dễ gây regression (lỗi hồi quy).
+
+**Tóm lại:** Hãy tìm nguyên nhân trong log và metric trước. Đừng đổi cấu trúc khi chưa biết chính xác nó đang hỏng ở đâu.
+--- reviewing draft ---
+
+Gemini: **Không nên làm tất cả cùng lúc.**
+
+Việc thay đổi đồng loạt kiến trúc (`sync` sang `async`), nâng cấp phiên bản runtime (Python 3.13), thay đổi hạ tầng (tăng RAM) và thêm tầng logic mới (cache) cùng một lúc mang lại rủi ro lớn: **Nếu hệ thống ổn định hơn, bạn sẽ không biết yếu tố nào thực sự cứu nó. Ngược lại, nếu phát sinh lỗi mới, bạn sẽ rơi vào ma trận không biết gỡ từ đâu.**
+
+Hiện tại, bạn mới chỉ thấy **triệu chứng** (lỗi 500 khi tải cao), nhưng chưa xác định được **nguyên nhân gốc rễ (root cause)**.
+
+### Đánh giá nhanh 4 giải pháp của bạn:
+
+1. **Tăng RAM:** Chỉ có tác dụng nếu server bị thiếu RAM thực tế (OOM - Out of Memory). Nếu ứng dụng bị rò rỉ bộ nhớ (memory leak) hoặc nghẽn kết nối database, tăng RAM chỉ kéo dài thời gian trước khi sập lại.
+2. **Nâng cấp Python 3.13:** Tốt cho hiệu năng tổng thể, nhưng các thư viện bên thứ ba (đặc biệt là các thư viện có C-extension) có thể chưa tương thích hoàn toàn, dễ sinh lỗi phát sinh.
+3. **Chuyển sang async:** Chỉ có hiệu quả nếu bottleneck của bạn là **I/O-bound** (chờ query database, gọi API bên thứ ba, đọc ghi file). Nếu hệ thống nghẽn vì **CPU-bound** (xử lý logic nặng, vòng lặp lớn), async không giúp gì mà còn làm code phức tạp hơn, dễ dính bug concurrency.
+4. **Thêm cache:** Rất tốt để giảm tải, nhưng nếu thiếu thiết kế kỹ lưỡng (dính cache stampede, invalidate sai), nó có thể tạo ra lỗi dữ liệu hoặc làm sập database lúc cache hết hạn.
+
+---
+
+### Bạn nên làm gì thay vì "đập đi xây lại"?
+
+Hãy chẩn đoán trước khi can thiệp:
+
+* **Bước 1: Đọc log server khi xảy ra lỗi 500**
+  * Lỗi 500 là lỗi phía server, chắc chắn có traceback hoặc mã lỗi cụ thể (ví dụ: `TimeoutError`, `Database connection pool exhausted`, hay `Worker Timeout` từ Gunicorn/Uvicorn). Biết chính xác loại lỗi quyết định 80% hướng giải quyết.
+* **Quan sát tài nguyên (Metrics) khi dồn tải**
+  * Cái gì chạm trần trước? CPU 100% (cần tối ưu code/tăng worker), RAM tăng liên tục (memory leak), hay Database hết kết nối (cần cấu hình lại connection pool)?
+* **Sửa có chọn lọc (Minimal Change)**
+  * Sau khi có số liệu từ log và metrics, hãy chọn giải pháp trực tiếp giải quyết bottleneck đó. Tránh đổi cấu trúc nền tảng (`sync` sang `async` hoặc đổi version Python) khi chưa tìm ra nguyên nhân.
+tokens: prompt 6147 | thinking 2082 | answer 1420  (2 passes)
+
+You: 

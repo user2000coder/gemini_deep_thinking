@@ -1,0 +1,24 @@
+# T02_r1: reading trap (regression vs V27.4: both readings expected)
+# instruction: C:\Users\tranv\AppData\Local\Temp\claude\c--Users-tranv-Desktop-gemini-deep-thinking\44b14505-84a4-42fb-a302-88bd5031a210\scratchpad\instruction_v28_fix.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28_fix.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] Hôm nay bạn có **3 quả táo**. 
+
+Đề bài đã nêu rõ hiện tại bạn "có 3 quả táo", nên sự kiện ăn 1 quả ngày hôm qua không thay đổi số lượng bạn đang có lúc này.
+--- reviewing draft ---
+
+Gemini: Câu trả lời phụ thuộc vào cách bạn hiểu câu đầu tiên của đề bài:
+
+1. **Đáp án: 3 quả táo** (Nếu xét theo nghĩa đen và thì của câu)
+Đề bài khẳng định rõ ràng ở thì hiện tại: *"Tôi có 3 quả táo"*. Việc hôm qua bạn ăn 1 quả không làm thay đổi thực tế được nêu trực tiếp ở câu đầu tiên rằng hiện tại bạn đang có 3 quả.
+
+2. **Đáp án: 2 quả táo** (Nếu xét theo tư duy logic / toán đố)
+Nếu câu *"Tôi có 3 quả táo"* được hiểu là số lượng ban đầu, kết hợp với sự kiện hôm qua ăn 1 quả, thì số táo còn lại tính đến hôm nay là: 3 - 1 = 2 quả.
+
+Trong các câu đố dạng này, ý (2) thường là đáp án mà người ra đề hướng tới để đánh lừa phản xạ trừ số học, nhưng về mặt ngữ pháp và logic chặt chẽ, câu trả lời chính xác theo dữ kiện hiện tại là **3 quả**.
+tokens: prompt 5068 | thinking 1964 | answer 277  (2 passes)
+
+You: 

@@ -1,0 +1,14 @@
+# T01: simple task -> short direct answer, user's language (EN)
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] Canberra.
+--- reviewing draft ---
+
+Gemini: Canberra.
+tokens: prompt 5625 | thinking 513 | answer 6  (2 passes)
+
+You: 

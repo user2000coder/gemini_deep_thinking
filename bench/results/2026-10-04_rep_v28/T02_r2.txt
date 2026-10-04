@@ -1,0 +1,23 @@
+# T02_r2: reading trap (regression vs V27.4: both readings expected)
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] Hôm nay bạn có **3 quả**.
+
+**Lý do:** 
+Câu đầu tiên (*"Tôi có 3 quả táo"*) khẳng định trạng thái ở hiện tại. Việc bạn ăn 1 quả vào *hôm qua* không làm thay đổi thực tế là hiện tại bạn đang có 3 quả (có thể bạn đã có số lượng đó hoặc vừa mới mua thêm). Đây là dạng câu hỏi mẹo dễ khiến người nghe làm phép trừ tự động (3 - 1 = 2) mà quên mất thì của câu.
+--- reviewing draft ---
+
+Gemini: Tùy thuộc vào cách bạn hiểu liên kết giữa các câu, câu hỏi này có 2 đáp án hợp lý:
+
+1. **3 quả** (Theo ngữ pháp và thì của câu): 
+Câu đầu tiên (*"Tôi có 3 quả táo"*) sử dụng thì hiện tại để khẳng định trạng thái ngay lúc nói. Việc ăn 1 quả vào *hôm qua* là sự kiện trong quá khứ và không làm thay đổi thực tế về số lượng đang có ở hiện tại (ví dụ: số táo hiện tại là kết quả của việc bạn vừa mới mua thêm, hoặc đây là hai thời điểm độc lập).
+
+2. **2 quả** (Theo logic chuỗi sự kiện / câu đố mẹo): 
+Nếu xem đây là một câu chuyện liên tục (ban đầu có 3 quả, hôm qua ăn 1 quả), thì việc ăn mất 1 quả sẽ làm giảm tổng số táo. Do đó, số táo còn lại tính đến hôm nay là: 3 - 1 = 2 quả.
+tokens: prompt 5095 | thinking 3385 | answer 327  (2 passes)
+
+You: 

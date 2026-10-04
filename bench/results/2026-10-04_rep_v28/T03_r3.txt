@@ -1,0 +1,64 @@
+# T03_r3: Bayes + hidden assumption (random screening vs symptomatic)
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] Xác suất anh của bạn thực sự mắc bệnh là khoảng **1,94%** (chưa tới 2%).
+
+Mặc dù xét nghiệm có độ nhạy rất cao (99%), tỷ lệ này gây bất ngờ cho nhiều người vì tỷ lệ bệnh trong cộng đồng quá thấp (1/1000), khiến số lượng dương tính giả lấn át số dương tính thật.
+
+Dưới đây là cách tính chi tiết bằng phương pháp giả định trên **100.000 người**:
+
+1. **Số người thực sự mắc bệnh:** 
+   100.000 x (1 / 1.000) = **100 người**.
+   * Số người thực sự khỏe mạnh: 100.000 - 100 = **99.900 người**.
+
+2. **Số người mắc bệnh xét nghiệm ra dương tính (Dương tính thật):**
+   Độ nhạy 99% nghĩa là trong 100 người bệnh, có 99 người test dương tính.
+   * 100 x 99% = **99 người**.
+
+3. **Số người khỏe mạnh xét nghiệm ra dương tính (Dương tính giả):**
+   Tỷ lệ dương tính giả 5% nghĩa là trong 99.900 người khỏe mạnh, có 5% bị test nhầm thành dương tính.
+   * 99.900 x 5% = **4.995 người**.
+
+4. **Tổng số người có kết quả dương tính:**
+   * 99 (dương tính thật) + 4.995 (dương tính giả) = **5.094 người**.
+
+5. **Xác suất thực sự mắc bệnh khi có kết quả dương tính:**
+   * Lấy số dương tính thật chia cho tổng số dương tính: 
+     99 / 5.094 ≈ **0,01943** tương đương **1,94%**.
+
+**Ý nghĩa:** 
+Trong các trường hợp xét nghiệm sàng lọc bệnh hiếm gặp, một kết quả dương tính **không có nghĩa là chắc chắn mắc bệnh**, mà chỉ là tín hiệu cần làm thêm các xét nghiệm chuyên sâu khác (khẳng định) để loại trừ khả năng dương tính giả.
+--- reviewing draft ---
+
+Gemini: Xác suất anh của bạn thực sự mắc bệnh là khoảng **1,94%** (chưa tới 2%).
+
+Mặc dù xét nghiệm có độ nhạy rất cao (99%), con số này gây ngạc nhiên cho nhiều người vì tỷ lệ bệnh trong cộng đồng quá thấp (1/1000). Khi bệnh rất hiếm, số lượng người khỏe mạnh làm xét nghiệm ra dương tính giả sẽ lớn hơn rất nhiều so với số người mắc bệnh thực sự.
+
+Dưới đây là cách tính chi tiết dựa trên giả định một cộng đồng **100.000 người**:
+
+1. **Số người thực sự mắc bệnh và khỏe mạnh:**
+   * Số người thực sự mắc bệnh: 100.000 x (1 / 1.000) = **100 người**.
+   * Số người thực sự khỏe mạnh: 100.000 - 100 = **99.900 người**.
+
+2. **Số người mắc bệnh xét nghiệm ra dương tính (Dương tính thật):**
+   * Độ nhạy 99% nghĩa là trong 100 người bệnh, có 99 người cho kết quả dương tính: 100 x 99% = **99 người**.
+
+3. **Số người khỏe mạnh xét nghiệm ra dương tính (Dương tính giả):**
+   * Tỷ lệ dương tính giả 5% nghĩa là trong 99.900 người khỏe mạnh, có 5% bị xét nghiệm nhầm thành dương tính: 99.900 x 5% = **4.995 người**.
+
+4. **Tổng số người có kết quả dương tính trong toàn bộ cộng đồng:**
+   * 99 (dương tính thật) + 4.995 (dương tính giả) = **5.094 người**.
+
+5. **Xác suất thực sự mắc bệnh khi có kết quả dương tính:**
+   * Lấy số dương tính thật chia cho tổng số người có kết quả dương tính: 
+     99 / 5.094 ≈ **0,01943** tương đương **1,94%**.
+
+**Ý nghĩa thực tế:**
+Trong các trường hợp xét nghiệm sàng lọc bệnh hiếm gặp, một kết quả dương tính ban đầu **không có nghĩa là chắc chắn mắc bệnh**. Nó chỉ là tín hiệu cảnh báo để thực hiện thêm các xét nghiệm chuyên sâu (khẳng định) nhằm loại trừ khả năng dương tính giả trước khi đưa ra kết luận cuối cùng.
+tokens: prompt 5552 | thinking 2348 | answer 1053  (2 passes)
+
+You: 

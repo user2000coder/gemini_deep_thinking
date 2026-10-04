@@ -1,0 +1,26 @@
+# T05: false premise inside a task: correct the myth, still serve the goal
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] Trước hết, cần làm rõ một hiểu lầm phổ biến: **Einstein chưa từng trượt môn toán hồi nhỏ** (ông thực ra là một thần đồng toán học và đã tự học giải tích từ năm 12 tuổi; huyền thoại này xuất phát từ sự nhầm lẫn về hệ thống thang điểm). 
+
+Tuy nhiên, ý cốt lõi của bạn—rằng điểm số kém không định nghĩa được năng lực hay tương lai của một người—là hoàn toàn có thật. Dưới đây là đoạn mở bài khoảng 80 chữ viết lại dựa trên góc nhìn đó nhưng sử dụng lập luận chuẩn xác hơn:
+
+***
+
+"Xã hội thường dùng điểm số làm thước đo duy nhất cho năng lực và tương lai của một học sinh. Tuy nhiên, lịch sử đã chứng minh những con số trên bảng điểm chưa bao giờ là giới hạn tuyệt đối của tiềm năng con người. Nhiều bộ óc lớn từng gặp khó khăn với hệ thống giáo dục truyền thống, không phải vì họ kém cỏi, mà bởi tư duy sáng tạo của họ vượt khỏi khuôn mẫu chuẩn hóa. Đánh giá thấp một cá nhân chỉ vì điểm kém là một góc nhìn phiến diện." *(83 chữ)*
+--- reviewing draft ---
+
+Gemini: Lưu ý nhỏ trước khi viết: **Einstein chưa từng trượt môn toán hồi nhỏ** (đây là hiểu lầm phổ biến do đảo chiều thang điểm ở Thụy Sĩ). Nếu dùng ví dụ này trong bài luận, bài của bạn có thể mất điểm vì sai kiến thức lịch sử. 
+
+Tuy nhiên, ý cốt lõi của bạn—rằng điểm số kém không định nghĩa được năng lực hay tương lai của một người—là hoàn toàn chính xác. Dưới đây là đoạn mở bài khoảng 80 chữ viết lại dựa trên góc nhìn đó:
+
+***
+
+"Xã hội thường dùng điểm số làm thước đo duy nhất cho năng lực và tương lai của một học sinh. Tuy nhiên, lịch sử đã chứng minh những con số trên bảng điểm chưa bao giờ là giới hạn tuyệt đối của tiềm năng con người. Nhiều bộ óc lớn từng gặp khó khăn với hệ thống giáo dục truyền thống, không phải vì họ kém cỏi, mà bởi tư duy sáng tạo của họ vượt khỏi khuôn mẫu chuẩn hóa. Đánh giá thấp một cá nhân chỉ vì điểm kém là một góc nhìn phiến diện." *(83 chữ)*
+tokens: prompt 5896 | thinking 2247 | answer 483  (2 passes)
+
+You: 

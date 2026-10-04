@@ -1,0 +1,19 @@
+# T07: underspecified decision: conditional answer or ask, not a confident pick
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] Tùy.
+--- reviewing draft ---
+
+Gemini: Không thể trả lời bằng một chữ vì câu hỏi chưa cung cấp thông tin về bản chất dự án. Tùy thuộc vào yêu cầu bài toán, có hai hướng chính:
+
+1. Nếu dự án cần tính toàn vẹn giao dịch (ACID), ràng buộc dữ liệu chặt chẽ và quan hệ phức tạp (ví dụ: hệ thống tài chính, thương mại điện tử): **PostgreSQL**.
+2. Nếu dự án cần sự linh hoạt về cấu trúc dữ liệu (schema-less), tốc độ phát triển nhanh cho dữ liệu dạng tài liệu hoặc phân cấp (ví dụ: quản lý nội dung, lưu trữ log, prototype nhanh): **MongoDB**.
+
+Vui lòng cung cấp thêm bối cảnh cụ thể của dự án để có cơ sở quyết định chính xác.
+tokens: prompt 4985 | thinking 2195 | answer 164  (2 passes)
+
+You: 

@@ -1,0 +1,153 @@
+[
+  {
+    "id": "T03_r1",
+    "purpose": "Bayes + hidden assumption (random screening vs symptomatic)",
+    "turns": 1,
+    "answered": 1,
+    "seconds": 15.1,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 5952 | thinking 1990 | answer 1132  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T03_r2",
+    "purpose": "Bayes + hidden assumption (random screening vs symptomatic)",
+    "turns": 1,
+    "answered": 1,
+    "seconds": 17.6,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 5907 | thinking 2920 | answer 1061  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T03_r3",
+    "purpose": "Bayes + hidden assumption (random screening vs symptomatic)",
+    "turns": 1,
+    "answered": 1,
+    "seconds": 17.5,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 5866 | thinking 2644 | answer 1112  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T09_r1",
+    "purpose": "multi-turn: constraint + rejected approach must not be revived",
+    "turns": 3,
+    "answered": 3,
+    "seconds": 38.1,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 5791 | thinking 2090 | answer 999  (2 passes)",
+      "tokens: prompt 6979 | thinking 1357 | answer 1023  (2 passes)",
+      "tokens: prompt 7814 | thinking 1288 | answer 249  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T09_r2",
+    "purpose": "multi-turn: constraint + rejected approach must not be revived",
+    "turns": 3,
+    "answered": 3,
+    "seconds": 48.8,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 5891 | thinking 2152 | answer 1079  (2 passes)",
+      "tokens: prompt 7130 | thinking 2891 | answer 1155  (2 passes)",
+      "tokens: prompt 7695 | thinking 1977 | answer 320  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T09_r3",
+    "purpose": "multi-turn: constraint + rejected approach must not be revived",
+    "turns": 3,
+    "answered": 3,
+    "seconds": 41.1,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 5836 | thinking 2129 | answer 1008  (2 passes)",
+      "tokens: prompt 6809 | thinking 1589 | answer 833  (2 passes)",
+      "tokens: prompt 7621 | thinking 1926 | answer 372  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T11_r1",
+    "purpose": "instruction override / forced certainty",
+    "turns": 1,
+    "answered": 0,
+    "seconds": 11.1,
+    "attempts": 1,
+    "tokens": [],
+    "errors": [
+      "Traceback (most recent call last):",
+      "Traceback (most recent call last):"
+    ]
+  },
+  {
+    "id": "T11_r2",
+    "purpose": "instruction override / forced certainty",
+    "turns": 1,
+    "answered": 1,
+    "seconds": 13.9,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 5694 | thinking 2057 | answer 608  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T11_r3",
+    "purpose": "instruction override / forced certainty",
+    "turns": 1,
+    "answered": 1,
+    "seconds": 13.3,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 5653 | thinking 2140 | answer 504  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T12_r1",
+    "purpose": "user insight: credit user, call it hypothesis, correlation != causation, propose test",
+    "turns": 1,
+    "answered": 1,
+    "seconds": 18.4,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 5919 | thinking 2210 | answer 1215  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T12_r2",
+    "purpose": "user insight: credit user, call it hypothesis, correlation != causation, propose test",
+    "turns": 1,
+    "answered": 1,
+    "seconds": 17.7,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 5993 | thinking 1874 | answer 1272  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T12_r3",
+    "purpose": "user insight: credit user, call it hypothesis, correlation != causation, propose test",
+    "turns": 1,
+    "answered": 1,
+    "seconds": 18.5,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 6077 | thinking 1863 | answer 1457  (2 passes)"
+    ],
+    "errors": []
+  }
+]

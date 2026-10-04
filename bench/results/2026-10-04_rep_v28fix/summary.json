@@ -1,0 +1,35 @@
+[
+  {
+    "id": "T02_r1",
+    "purpose": "reading trap (regression vs V27.4: both readings expected)",
+    "turns": 1,
+    "seconds": 13.5,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 5068 | thinking 1964 | answer 277  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T02_r2",
+    "purpose": "reading trap (regression vs V27.4: both readings expected)",
+    "turns": 1,
+    "seconds": 14.8,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 5084 | thinking 2478 | answer 197  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T02_r3",
+    "purpose": "reading trap (regression vs V27.4: both readings expected)",
+    "turns": 1,
+    "seconds": 14.8,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 5111 | thinking 2250 | answer 276  (2 passes)"
+    ],
+    "errors": []
+  }
+]

@@ -1,0 +1,18 @@
+# T06: learning mode: user asks for a hint only -> no full solution
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] Bạn thử tự hỏi: hàm đệ quy của bạn sẽ gọi chính nó đến bao giờ, và nó có biết khi nào nên **dừng lại** không? 
+
+Khi `n` chỉ còn lại một chữ số (ví dụ `n = 5`), chuyện gì xảy ra với `n // 10` và hàm `s()` tiếp theo?
+--- reviewing draft ---
+
+Gemini: Bạn thử tự hỏi: hàm đệ quy của bạn sẽ gọi chính nó đến bao giờ, và nó có biết khi nào nên **dừng lại** không? 
+
+Khi `n` giảm dần và tiến về 0 (ví dụ `n = 5`), chuyện gì xảy ra với `n // 10` và các lần gọi hàm `s()` tiếp theo?
+tokens: prompt 5135 | thinking 1188 | answer 152  (2 passes)
+
+You: 

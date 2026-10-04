@@ -1,0 +1,16 @@
+# T07_r1: underspecified decision: conditional answer or ask, not a confident pick
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] Không thể trả lời một chữ vì thiếu thông tin dự án. 
+
+Ngắn gọn nhất: **PostgreSQL** (đây là lựa chọn mặc định an toàn cho đa số dự án, trừ khi dữ liệu của bạn hoàn toàn phi cấu trúc và thay đổi liên tục thì chọn **MongoDB**).
+--- reviewing draft ---
+
+Gemini: **PostgreSQL** (trừ khi dữ liệu hoàn toàn phi cấu trúc và thay đổi liên tục, khi đó chọn **MongoDB**).
+tokens: prompt 5672 | thinking 1774 | answer 90  (2 passes)
+
+You: 

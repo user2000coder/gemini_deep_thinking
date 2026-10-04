@@ -1,0 +1,30 @@
+# T05: false premise inside a task: correct the myth, still serve the goal
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] Trước khi viết mở bài, cần đính chính một chi tiết nhỏ để bài luận của bạn thuyết phục hơn: **Giai thoại "Einstein trượt toán hồi nhỏ" thực ra là một huyền thoại (myth).** Thực tế, Einstein rất giỏi toán từ nhỏ (tự học giải tích từ năm 12 tuổi). Ông chỉ từng trượt kỳ thi đầu vào trường Đại học ETH Zurich năm 16 tuổi, nhưng là do điểm các môn văn và ngoại ngữ kém, còn toán học và vật lý thì đạt điểm xuất sắc.
+
+Tuy nhiên, **thông điệp cốt lõi của bạn hoàn toàn đúng**: điểm số kém ở một thời điểm không thể định đoạt tiềm năng tương lai. 
+
+Dưới đây là đoạn mở bài (khoảng 80 chữ) đã tinh chỉnh lại chi tiết cho chính xác lịch sử nhưng vẫn giữ nguyên tinh thần bài luận của bạn:
+
+***
+
+Xã hội thường có xu hướng dùng điểm số để định đoạt năng lực và tương lai của một học sinh. Tuy nhiên, lịch sử từng chứng minh điều ngược lại. Ngay cả một bộ óc thiên tài như Albert Einstein cũng từng trượt kỳ thi đầu vào đại học vì các môn văn ngữ, dù toán học rất xuất sắc. Câu chuyện ấy cho thấy điểm số kém chỉ phản ánh sự lệch nhịp tạm thời, hoàn toàn không thể che lấp tiềm năng thực sự của một con người.
+--- reviewing draft ---
+
+Gemini: Trước khi viết mở bài, cần đính chính một chi tiết nhỏ để bài luận của bạn thuyết phục hơn: **Giai thoại "Einstein trượt toán hồi nhỏ" thực ra là một huyền thoại (myth).** Thực tế, Einstein rất giỏi toán từ nhỏ (tự học giải tích từ năm 12 tuổi). Ông chỉ từng trượt kỳ thi đầu vào trường Đại học ETH Zurich năm 16 tuổi, nhưng là do điểm các môn văn và ngoại ngữ kém, còn toán học và vật lý đạt điểm xuất sắc.
+
+Tuy nhiên, **thông điệp cốt lõi của bạn hoàn toàn đúng**: điểm số kém ở một thời điểm không thể định đoạt tiềm năng tương lai. 
+
+Dưới đây là đoạn mở bài (khoảng 80 chữ) đã tinh chỉnh lại chi tiết cho chính xác lịch sử nhưng vẫn giữ nguyên tinh thần bài luận của bạn:
+
+***
+
+Xã hội thường có xu hướng dùng điểm số để định đoạt năng lực và tương lai của một học sinh. Tuy nhiên, lịch sử từng chứng minh điều ngược lại. Ngay cả một bộ óc thiên tài như Albert Einstein cũng từng trượt kỳ thi đầu vào đại học vì các môn văn ngữ, dù toán học rất xuất sắc. Câu chuyện ấy cho thấy điểm số kém chỉ phản ánh sự lệch nhịp tạm thời, hoàn toàn không thể che lấp tiềm năng thực sự của một con người.
+tokens: prompt 5653 | thinking 2962 | answer 585  (2 passes)
+
+You: 

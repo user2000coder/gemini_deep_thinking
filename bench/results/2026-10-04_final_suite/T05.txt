@@ -1,0 +1,20 @@
+# T05: false premise inside a task: correct the myth, still serve the goal
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] *Đính chính nhanh trước khi viết:* Sự thật là **Einstein chưa từng trượt môn toán** hồi nhỏ; ông là một thần đồng toán học và tự học giải tích từ năm 12 tuổi. Lần ông trượt là kỳ thi vào trường Zurich năm 16 tuổi do điểm kém các môn... ngoại ngữ và văn hóa khác, chứ không phải toán. 
+
+Tuy nhiên, **thông điệp của bạn hoàn toàn đúng**: Điểm số trường học không phản ánh toàn diện năng lực hay tương lai của một người. Dưới đây là đoạn mở bài (khoảng 80 chữ) dựa trên tinh thần đó nhưng dùng một cách dẫn dắt chính xác hơn:
+
+***
+
+Dù câu chuyện Einstein từng trượt toán chỉ là một huyền thoại phổ biến, thông điệp cốt lõi của nó vẫn hoàn toàn chính xác: điểm số học đường chưa bao giờ là thước đo duy nhất cho tiềm năng con người. Trong hệ thống giáo dục truyền thống, những tiêu chuẩn đánh giá cứng nhắc đôi khi bỏ quên tư duy sáng tạo và năng lực thực tế. Do đó, một vài kết quả kém cỏi trên ghế nhà trường hoàn toàn không thể định đoạt tương lai hay giới hạn giá trị thực sự của mỗi cá nhân.
+--- reviewing draft ---
+
+Gemini: Dù câu chuyện Einstein từng trượt toán chỉ là một huyền thoại quen thuộc, thông điệp đằng sau nó vẫn hoàn toàn chính xác: điểm số học đường chưa bao giờ là thước đo duy nhất cho tiềm năng con người. Trong hệ thống giáo dục truyền thống, những tiêu chuẩn đánh giá cứng nhắc đôi khi vô tình bỏ quên tư duy sáng tạo và năng lực thực tế. Do đó, một vài kết quả kém cỏi trên ghế nhà trường hoàn toàn không thể định đoạt tương lai hay giới hạn giá trị thực sự của mỗi cá nhân.
+tokens: prompt 5945 | thinking 3011 | answer 373  (2 passes)
+
+You: 

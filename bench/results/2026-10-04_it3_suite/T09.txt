@@ -1,0 +1,115 @@
+# T09: multi-turn: constraint + rejected approach must not be revived
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] 3 phương án lưu session không dùng Redis, sắp xếp theo mức độ phổ biến:
+
+**1. JWT / Encrypted Cookie (Stateless)**
+* **Cách hoạt động:** Lưu toàn bộ thông tin session đã ký (signed/encrypted) trực tiếp ở phía client (browser cookie).
+* **Ưu điểm:** Không cần server-side storage, scale ngang cực tốt, không tốn tài nguyên DB.
+* **Nhược điểm:** Khó thu hồi (revoke) token trước thời hạn nếu chưa hết hạn; dung lượng payload giới hạn (~4KB).
+* **Phù hợp:** SPA, API-driven architectures, ứng dụng scale lớn không cần strict session revocation.
+
+**2. Database-backed Session (PostgreSQL / MySQL)**
+* **Cách hoạt động:** Tạo bảng `sessions` lưu session ID, user data và thời gian hết hạn trên chính cơ sở dữ liệu quan hệ của ứng dụng.
+* **Ưu điểm:** Tận dụng hạ tầng sẵn có, dễ kiểm soát, dễ implement tính năng revoke session (xóa bản ghi trong DB).
+* **Nhược điểm:** Gây tải thêm cho DB chính khi traffic cao; đọc/ghi chậm hơn in-memory store.
+* **Phù hợp:** Ứng dụng Monolithic, traffic vừa và nhỏ, đã có sẵn DB quan hệ.
+
+**3. Memcached hoặc Cloud Key-Value (như AWS DynamoDB / GCP Firestore)**
+* **Cách hoạt động:** Dùng một in-memory store khác không phải Redis (như Memcached nếu chỉ cấm riêng Redis) hoặc NoSQL key-value managed service trên cloud.
+* **Ưu điểm:** Tốc độ nhanh (với Memcached) hoặc scale tự động không cần quản lý server (với DynamoDB/Firestore).
+* **Nhược điểm:** Phụ thuộc cloud provider (nếu dùng DynamoDB) hoặc không hỗ trợ cấu trúc dữ liệu phức tạp như Redis (với Memcached).
+* **Phù hợp:** Hệ thống chạy trên Cloud, hoặc công ty chỉ cấm cụ thể phần mềm "Redis" nhưng cho phép cache/NoSQL khác.
+
+---
+**Điều kiện quyết định:** 
+* Nếu app đơn giản / microservices: Chọn **(1)**.
+* Nếu app vừa / có sẵn DB quan hệ / cần quản lý session chặt chẽ: Chọn **(2)**.
+* Nếu chạy Cloud và chỉ cấm riêng từ khóa "Redis": Chọn **(3)**.
+--- reviewing draft ---
+
+Gemini: 3 phương án lưu session không dùng Redis, kèm điều kiện áp dụng và giả định quan trọng:
+
+**1. JWT / Encrypted Cookie (Stateless)**
+* **Cách hoạt động:** Lưu thông tin session đã mã hóa/ký trực tiếp ở cookie phía client.
+* **Ưu điểm:** Không cần server-side storage, scale ngang tốt, không tốn tài nguyên DB.
+* **Nhược điểm / Giả định ngầm:** Khó thu hồi (revoke) token trước hạn. 
+* *Nếu giả định sai:* Nếu ứng dụng yêu cầu tính năng "đăng xuất từ xa mọi thiết bị" hoặc bảo mật cao (như ngân hàng), dùng JWT thuần sẽ rủi ro trừ khi bổ sung cơ chế blacklist phức tạp.
+
+**2. Database-backed Session (PostgreSQL / MySQL)**
+* **Cách hoạt động:** Lưu session ID và dữ liệu vào bảng riêng trên DB quan hệ sẵn có.
+* **Ưu điểm:** Dễ triển khai, tận dụng hạ tầng có sẵn, dễ xóa/thu hồi session (xóa bản ghi).
+* **Nhược điểm / Giả định ngầm:** Gây thêm tải cho DB chính.
+* *Nếu giả định sai:* Nếu traffic lớn (hàng nghìn request/giây đọc-ghi session liên tục), DB quan hệ sẽ bị nghẽn cổ chai. Chỉ phù hợp khi traffic vừa/nhỏ và DB còn dư dung lượng.
+
+**3. Memcached hoặc Cloud Key-Value (AWS DynamoDB / GCP Firestore)**
+* **Cách hoạt động:** Dùng in-memory store khác (Memcached nếu công ty chỉ cấm riêng phần mềm Redis) hoặc NoSQL managed service trên cloud.
+* **Ưu điểm:** Tốc độ nhanh (Memcached) hoặc scale tự động không cần quản lý server (DynamoDB/Firestore).
+* **Nhược điểm / Giả định ngầm:** Phụ thuộc hạ tầng cloud hoặc hạn chế tính năng so với Redis.
+* *Nếu giả định sai:* Nếu lệnh cấm của công ty áp dụng cho mọi loại in-memory cache tự quản lý, Memcached sẽ vi phạm chính sách; lúc này bắt buộc phải dùng dịch vụ Cloud managed (như DynamoDB).
+
+**Cách chọn nhanh:**
+* App nhỏ/Microservices/Cần scale nhanh, chấp nhận khó revoke tức thì: Chọn **(1)**.
+* App Monolithic/Traffic vừa/Đã có sẵn DB quan hệ và cần quản lý session chặt: Chọn **(2)**.
+* Chạy trên Cloud và lệnh cấm chỉ nhắm đúng từ khóa "Redis": Chọn **(3)** (DynamoDB/Firestore nếu không muốn rủi ro với Memcached).
+tokens: prompt 6158 | thinking 1766 | answer 1086  (2 passes)
+
+You: 
+[draft] Vì yêu cầu **thu hồi session ngay lập tức**, bạn buộc phải dùng **server-side session storage** (lưu trạng thái phía server). 
+
+Trong 2 phương án còn lại, nên chọn như sau:
+
+**Chọn Database quan hệ (PostgreSQL / MySQL) nếu:**
+* Ứng dụng có quy mô nhỏ đến vừa, traffic chưa quá cao (dưới vài trăm request/giây).
+* Bạn muốn đơn giản hóa kiến trúc: không cần quản lý thêm dịch vụ lưu trữ mới, tận dụng luôn DB sẵn có, dễ làm transaction (gắn session với user state).
+* *Cách thu hồi:* Xóa hoặc đổi trạng thái (`is_active = false`) bản ghi session trong DB. Request sau kiểm tra thấy mất/hết hạn là đá văng ra ngay.
+
+**Chọn Cloud Key-Value (DynamoDB / Firestore) hoặc Memcached nếu:**
+* Traffic lớn, việc tra cứu session liên tục mỗi request sẽ làm nghẽn cổ chai (bottleneck) của DB chính.
+* Bạn đang chạy trên Cloud (AWS/GCP) và có thể tận dụng dịch vụ quản lý sẵn (DynamoDB, Firestore) hoặc dùng Memcached (nếu lệnh cấm của công ty chỉ nhắm đúng từ khóa "Redis", chứ không cấm mọi in-memory store).
+* *Cách thu hồi:* Xóa key tương ứng lập tức.
+
+---
+
+### Giả định quyết định & Hành động tiếp theo:
+* **Giả định:** Traffic của bạn ở mức vừa phải và đang dùng sẵn PostgreSQL/MySQL.
+* **Quyết định tối ưu:** Lưu thẳng vào **Database quan hệ** ở giai đoạn đầu. Nó đáp ứng đúng yêu cầu thu hồi ngay lập tức, code đơn giản, không phát sinh hạ tầng mới. 
+* **Khi nào đổi:** Khi hệ thống scale lớn và DB bắt đầu chậm do đọc/ghi session quá nhiều, lúc đó mới tách sang Cloud Key-Value.
+--- reviewing draft ---
+
+Gemini: Chọn phương án nào phụ thuộc vào **quy mô traffic** và **hạ tầng hiện tại** của bạn. Cả hai đều đáp ứng yêu cầu thu hồi ngay lập tức (bằng cách xóa hoặc đổi trạng thái bản ghi/key).
+
+Dưới đây là cách chọn chính xác:
+
+**1. Chọn Database quan hệ sẵn có (PostgreSQL / MySQL) khi:**
+* **Điều kiện:** Traffic ở mức thấp đến vừa (chưa chịu áp lực đọc/ghi quá lớn trên mỗi request), hoặc ứng dụng dạng Monolith đã có sẵn DB.
+* **Lý do:** Không phát sinh hạ tầng mới, dễ triển khai, dễ làm transaction (gắn session trực tiếp với user). Thu hồi session chỉ là câu lệnh `DELETE` hoặc `UPDATE` dòng tương ứng.
+* **Giả định ngầm & Rủi ro nếu sai:** Giả định DB của bạn còn dư dung lượng và IOPS. *Nếu giả định sai:* Khi traffic tăng cao, mỗi request đều phải chọc vào DB để check session sẽ tạo cổ chai (bottleneck), làm chậm toàn bộ hệ thống.
+
+**2. Chọn Cloud Key-Value (DynamoDB / Firestore) khi:**
+* **Điều kiện:** Ứng dụng chạy trên Cloud (AWS/GCP), traffic lớn, hoặc kiến trúc Microservices/Serverless cần scale độc lập.
+* **Lý do:** Tránh làm quá tải DB chính. Các dịch vụ này thiết kế riêng cho việc đọc/ghi key-value tốc độ cao và tự động scale.
+* **Giả định ngầm & Rủi ro nếu sai:** Bạn phải chấp nhận phụ thuộc vào nhà cung cấp cloud và tốn thêm chi phí quản lý dịch vụ mới. *(Lưu ý về Memcached: Chỉ dùng nếu lệnh cấm của công ty chỉ nhắm đúng từ khóa "Redis"; nếu lệnh cấm áp dụng cho mọi in-memory cache tự quản lý, hãy tránh Memcached và dùng Cloud Key-Value).*
+
+**Khuyến nghị quyết định:**
+* Nếu app mới bắt đầu / traffic nhỏ / đã có sẵn PostgreSQL: **Dùng Database quan hệ** để tối ưu tốc độ làm sản phẩm. 
+* Nếu app đã có traffic lớn từ đầu hoặc chạy Cloud-native: **Dùng Cloud Key-Value (DynamoDB/Firestore)** để tránh sập DB chính khi scale.
+tokens: prompt 7244 | thinking 1734 | answer 902  (2 passes)
+
+You: 
+[draft] **Cloud Key-Value (DynamoDB / Firestore)** hoặc **Memcached**.
+
+*Lý do:* Được thiết kế chuyên biệt cho việc đọc/ghi key-value tốc độ cao, hỗ trợ scale ngang tự động và không làm nghẽn DB quan hệ chính.
+--- reviewing draft ---
+
+Gemini: **Cloud Key-Value (DynamoDB / Firestore)**.
+
+* **Lý do:** Được thiết kế chuyên biệt cho việc đọc/ghi key-value tốc độ cao, hỗ trợ scale ngang tự động và không làm nghẽn DB quan hệ chính khi tải tăng 10 lần.
+* **Giả định ngầm & Điều kiện:** Ứng dụng phải chạy trên Cloud. *(Lưu ý: Nếu lệnh cấm của công ty áp dụng cho mọi in-memory cache tự quản lý như Memcached, Cloud Key-Value là lựa chọn duy nhất còn lại vừa scale tốt vừa không vi phạm chính sách).*
+tokens: prompt 7923 | thinking 1087 | answer 187  (2 passes)
+
+You: 

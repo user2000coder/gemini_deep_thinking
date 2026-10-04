@@ -1,0 +1,67 @@
+# T03: Bayes + hidden assumption (random screening vs symptomatic)
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] Xác suất anh ấy thực sự mắc bệnh chỉ khoảng **1,94%** (chưa đến 2%), dù xét nghiệm có độ nhạy lên tới 99%.
+
+### Giải thích nhanh (giả định trên 100.000 người):
+
+1. **Số người mắc bệnh thực tế:** 
+   100.000 người × (1/1000) = **100 người mắc bệnh**.
+   * Số người thực sự mắc bệnh mà xét nghiệm ra dương tính (độ nhạy 99%): 100 × 99% = **99 người**.
+
+2. **Số người không mắc bệnh:** 
+   100.000 - 100 = **99.900 người không mắc bệnh**.
+   * Số người không mắc bệnh nhưng xét nghiệm vẫn báo dương tính giả (5%): 99.900 × 5% = **4.995 người**.
+
+3. **Tổng số người có kết quả dương tính:** 
+   99 (dương tính thật) + 4.995 (dương tính giả) = **5.094 người**.
+
+4. **Xác suất thực tế:** 
+   Trong tổng số 5.094 người dương tính, chỉ có 99 người thực sự mắc bệnh.
+   * Tỷ lệ = 99 / 5.094 ≈ **1,94%**.
+
+---
+
+### Giả định quan trọng (Assumption) cần lưu ý:
+Kết quả trên áp dụng cho trường hợp **xét nghiệm sàng lọc ngẫu nhiên trong cộng đồng** (nơi tỷ lệ bệnh chung là 1/1000). 
+
+Nếu anh bạn **đã có triệu chứng** hoặc thuộc **nhóm có nguy cơ cao** (ví dụ tiếp xúc gần với nguồn bệnh), tỷ lệ mắc bệnh ban đầu (prevalence) sẽ lớn hơn rất nhiều so với 1/1000, dẫn đến xác suất thực sự mắc bệnh khi dương tính cũng sẽ cao hơn rất nhiều.
+--- reviewing draft ---
+
+Gemini: Xác suất anh ấy thực sự mắc bệnh là khoảng **1,94%** (chưa đến 2%), mặc dù xét nghiệm có độ nhạy rất cao (99%). 
+
+Đây là một hiện tượng phản trực giác do "nghịch lý tỷ lệ cơ sở" (base rate fallacy) trong xác suất thống kê.
+
+### Giải thích qua 100.000 người:
+
+1. **Số người mắc bệnh thực tế trong cộng đồng:** 
+   100.000 người × (1 / 1.000) = **100 người mắc bệnh**.
+   * Số người thực sự mắc bệnh mà xét nghiệm ra dương tính (độ nhạy 99%): 100 × 99% = **99 người**.
+
+2. **Số người không mắc bệnh:** 
+   100.000 - 100 = **99.900 người khỏe mạnh**.
+   * Số người khỏe mạnh nhưng xét nghiệm vẫn báo dương tính giả (5%): 99.900 × 5% = **4.995 người**.
+
+3. **Tổng số người có kết quả xét nghiệm dương tính:** 
+   99 (dương tính thật) + 4.995 (dương tính giả) = **5.094 người**.
+
+4. **Xác suất thực tế:** 
+   Trong tổng số 5.094 người nhận kết quả dương tính, chỉ có 99 người thực sự mắc bệnh.
+   * Tỷ lệ = 99 / 5.094 ≈ **1,94%**.
+
+---
+
+### Giả định quan trọng làm thay đổi kết quả:
+
+Kết quả 1,94% trên chỉ đúng khi thỏa mãn điều kiện ngầm sau: **Đây là xét nghiệm sàng lọc ngẫu nhiên trong cộng đồng tổng quát** (nơi tỷ lệ mắc bệnh chung đúng bằng 1/1000).
+
+**Nếu giả định này sai, kết quả sẽ đổi hoàn toàn:**
+* Nếu anh bạn **đã có triệu chứng** hoặc thuộc **nhóm nguy cơ cao** (ví dụ: tiếp xúc gần với nguồn bệnh, sống trong vùng dịch): Tỷ lệ mắc bệnh ban đầu không còn là 1/1000 nữa mà có thể là 5%, 10% hoặc cao hơn rất nhiều. 
+* Khi tỷ lệ ban đầu tăng lên, số lượng dương tính giả (chiếm phần lớn trong nhóm 4.995 người ở trên) sẽ giảm tỷ trọng, khiến **xác suất thực sự mắc bệnh khi có kết quả dương tính sẽ tăng vọt lên mức cao hơn rất nhiều** (có thể lên tới 50%, 80% hoặc hơn).
+tokens: prompt 6169 | thinking 2780 | answer 1050  (2 passes)
+
+You: 

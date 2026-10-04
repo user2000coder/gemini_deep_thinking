@@ -1,0 +1,22 @@
+# T06: learning mode: user asks for a hint only -> no full solution
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] Ý tưởng bóc tách chữ số cuối (`n % 10`) và phần còn lại (`n // 10`) của bạn hoàn toàn chính xác. 
+
+Tuy nhiên, hàm đệ quy nào cũng cần một điểm dừng để không chạy mãi mãi (giống như vòng lặp `while` cần điều kiện thoát). 
+
+Khi `n` nhỏ dần (ví dụ về `0`), điều gì sẽ xảy ra với hàm của bạn nếu không có một câu lệnh `if` để chặn lại và trả về kết quả cụ thể?
+--- reviewing draft ---
+
+Gemini: Ý tưởng bóc tách chữ số cuối (`n % 10`) và phần còn lại (`n // 10`) của bạn hoàn toàn chính xác. 
+
+Tuy nhiên, hàm đệ quy nào cũng cần một điểm dừng để không chạy mãi mãi (giống như vòng lặp `while` cần điều kiện thoát). 
+
+Khi `n` nhỏ dần (ví dụ về `0`), điều gì sẽ xảy ra với hàm của bạn nếu thiếu một câu lệnh `if` để chặn lại? Bạn thử nghĩ xem khi `n = 0`, tổng các chữ số bằng bao nhiêu và đặt điều kiện đó vào đầu hàm nhé.
+tokens: prompt 5838 | thinking 1237 | answer 244  (2 passes)
+
+You: 

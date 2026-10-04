@@ -1,0 +1,64 @@
+# T03_r1: Bayes + hidden assumption (random screening vs symptomatic)
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] Xác suất anh bạn thực sự mắc bệnh là khoảng **1,94%** (chưa đến 2%). 
+
+Con số này có vẻ rất thấp so với độ nhạy 99% của xét nghiệm, nhưng đây là một hiện tượng toán học kinh điển (gọi là *ngụy biện tỷ lệ cơ sở* - base rate fallacy). 
+
+Dưới đây là cách tính chi tiết bằng phương pháp quy về số lượng thực tế trên **1.000.000 người** để dễ hình dung:
+
+1. **Số người thực sự mắc bệnh:** 
+   Với tỷ lệ 1/1000, trong 1.000.000 dân số sẽ có **1.000 người** mắc bệnh.
+   * Xét nghiệm phát hiện đúng 99% (độ nhạy): 1.000 x 99% = **990 người** có kết quả dương tính thật.
+   * 10 người còn lại bị âm tính giả.
+
+2. **Số người KHÔNG mắc bệnh:**
+   Sẽ có 1.000.000 - 1.000 = **999.000 người** khỏe mạnh.
+   * Tỷ lệ dương tính giả là 5%: 999.000 x 5% = **49.950 người** khỏe mạnh nhưng lại có kết quả dương tính giả.
+
+3. **Tổng số người có kết quả dương tính:**
+   Tổng số dương tính = Dương tính thật + Dương tính giả = 990 + 49.950 = **50.940 người**.
+
+4. **Xác suất thực sự mắc bệnh khi có kết quả dương tính:**
+   Lấy số người dương tính thật chia cho tổng số người dương tính:
+   990 / 50.940 ≈ **0,01943** hay **1,94%**.
+
+### Ý nghĩa thực tế:
+Vì căn bệnh rất hiếm gặp (1/1000), số lượng người khỏe mạnh rất lớn. Tỷ lệ dương tính giả tuy nhỏ (5%) nhưng áp dụng lên tập hợp người khỏe mạnh khổng lồ đó lại tạo ra một lượng **dương tính giả (49.950)** lớn hơn rất nhiều lần so với **dương tính thật (990)**. 
+
+Do đó, khi một người xét nghiệm dương tính với một bệnh hiếm, khả năng cao đó vẫn là một trường hợp dương tính giả. Đây là lý do vì sao các xét nghiệm sàng lọc ban đầu luôn cần phải có xét nghiệm khẳng định tiếp theo (ví dụ: PCR hoặc sinh thiết).
+--- reviewing draft ---
+
+Gemini: Xác suất anh bạn thực sự mắc bệnh là khoảng **1,94%** (chưa đến 2%).
+
+Dù xét nghiệm có độ nhạy rất cao (99%), kết quả này phản ánh một hiện tượng toán học kinh điển gọi là **ngụy biện tỷ lệ cơ sở** (base rate fallacy). 
+
+Dưới đây là cách tính chi tiết quy về giả định **1.000.000 người** để dễ hình dung:
+
+1. **Số người thực sự mắc bệnh:**
+   Với tỷ lệ 1/1.000, trong 1.000.000 dân số sẽ có **1.000 người** mắc bệnh.
+   - Xét nghiệm phát hiện đúng (dương tính thật): 1.000 x 99% = **990 người**.
+   - 10 người còn lại bị âm tính giả.
+
+2. **Số người KHÔNG mắc bệnh:**
+   Sẽ có 1.000.000 - 1.000 = **999.000 người** khỏe mạnh.
+   - Tỷ lệ dương tính giả 5%: 999.000 x 5% = **49.950 người** khỏe mạnh nhưng vẫn cho kết quả dương tính giả.
+
+3. **Tổng số người có kết quả dương tính:**
+   Tổng số dương tính = Dương tính thật + Dương tính giả = 990 + 49.950 = **50.940 người**.
+
+4. **Xác suất thực sự mắc bệnh khi có kết quả dương tính:**
+   Lấy số người dương tính thật chia cho tổng số người có kết quả dương tính:
+   990 / 50.940 ≈ **1,94%**.
+
+### Ý nghĩa thực tế:
+Vì căn bệnh rất hiếm gặp (1/1.000), số lượng người khỏe mạnh áp đảo hoàn toàn số người mắc bệnh. Tỷ lệ dương tính giả tuy ở mức nhỏ (5%) nhưng khi nhân lên với tập hợp người khỏe mạnh khổng lồ (999.000 người) lại tạo ra lượng **dương tính giả (49.950)** lớn hơn gấp gần 50 lần so với **dương tính thật (990)**. 
+
+Do đó, khi một người xét nghiệm dương tính với một bệnh hiếm, khả năng lớn đó vẫn là một trường hợp dương tính giả. Đây là lý do vì sao y học luôn yêu cầu các xét nghiệm sàng lọc ban đầu (mang tính chỉ điểm) bắt buộc phải được kiểm chứng lại bằng các xét nghiệm khẳng định chuyên sâu trước khi đưa ra kết luận chẩn đoán cuối cùng.
+tokens: prompt 5634 | thinking 2818 | answer 1174  (2 passes)
+
+You: 

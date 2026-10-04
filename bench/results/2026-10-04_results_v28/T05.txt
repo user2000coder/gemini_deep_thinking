@@ -1,0 +1,24 @@
+# T05: false premise inside a task: correct the myth, still serve the goal
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] Trước khi viết bài, có một điểm cần lưu ý thực tế: **Chuyện Einstein từng trượt môn toán là một lời đồn không chính xác** (ông thực ra rất xuất sắc về toán từ khi còn nhỏ). 
+
+Tuy nhiên, nếu bạn muốn dùng câu chuyện này như một biểu tượng quen thuộc trong văn hóa đại chúng để mở bài, đây là đoạn văn khoảng 75 chữ dựa trên ý tưởng của bạn nhưng đã khéo léo biến nó thành một góc nhìn mang tính ẩn dụ:
+
+***
+
+Trong văn hóa đại chúng, câu chuyện về một Albert Einstein từng trượt môn toán từ nhỏ đã trở thành biểu tượng quen thuộc để xoa dịu những học sinh có điểm số kém. Dù thực tế lịch sử đã chứng minh đây chỉ là một sự hiểu lầm, thông điệp cốt lõi của nó vẫn nguyên giá trị: những con số trên bảng điểm chưa bao giờ là thước đo chính xác cho năng lực thực sự hay tương lai của một con người.
+--- reviewing draft ---
+
+Gemini: Lưu ý nhỏ trước khi viết: Thực tế lịch sử cho thấy Einstein chưa từng trượt toán (đây là một hiểu lầm phổ biến). Tuy nhiên, bạn hoàn toàn có thể dùng nó dưới góc độ biểu tượng văn hóa. 
+
+Dưới đây là đoạn mở bài khoảng 80 chữ được tinh chỉnh để vừa giữ được thông điệp của bạn, vừa tránh bị phản biện về mặt sự kiện:
+
+Trong văn hóa đại chúng, câu chuyện về một Albert Einstein từng trượt môn toán từ nhỏ đã trở thành biểu tượng quen thuộc để xoa dịu những học sinh điểm kém. Dù thực tế lịch sử đây chỉ là một sự hiểu lầm, thông điệp của nó vẫn nguyên giá trị: những con số trên bảng điểm chưa bao giờ là thước đo tuyệt đối cho năng lực thực sự hay tiềm năng tương lai của một con người.
+tokens: prompt 5226 | thinking 2680 | answer 383  (2 passes)
+
+You: 

@@ -1,0 +1,19 @@
+# T02_r2: reading trap (regression vs V27.4: both readings expected)
+# instruction: C:\Users\tranv\AppData\Local\Temp\claude\c--Users-tranv-Desktop-gemini-deep-thinking\44b14505-84a4-42fb-a302-88bd5031a210\scratchpad\instruction_v28_fix.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28_fix.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] Hôm nay bạn vẫn có **3 quả táo**.
+
+**Lý do:** Câu đầu tiên bạn đã khẳng định *"Tôi có 3 quả táo"* (ở thời điểm hiện tại). Việc hôm qua bạn ăn 1 quả không làm thay đổi sự thật là câu hỏi đang xác nhận số táo bạn đang có.
+--- reviewing draft ---
+
+Gemini: Tùy thuộc vào cách bạn hiểu câu đầu tiên, câu hỏi này có 2 đáp án:
+
+1. **3 quả** (Nếu xét theo đúng ngữ pháp): Câu đầu tiên bạn khẳng định *"Tôi có 3 quả táo"* ở thì hiện tại. Việc hôm qua bạn ăn 1 quả không làm thay đổi khẳng định về số lượng bạn đang có lúc này.
+2. **2 quả** (Nếu xét theo logic bài toán đố): Nếu "3 quả" là số táo bạn có trước đó, hôm qua ăn 1 quả thì hôm nay số táo còn lại là 3 - 1 = 2 quả.
+tokens: prompt 5084 | thinking 2478 | answer 197  (2 passes)
+
+You: 

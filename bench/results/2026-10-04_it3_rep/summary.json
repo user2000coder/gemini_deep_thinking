@@ -1,0 +1,146 @@
+[
+  {
+    "id": "T03_r1",
+    "purpose": "Bayes + hidden assumption (random screening vs symptomatic)",
+    "turns": 1,
+    "answered": 1,
+    "seconds": 17.5,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 6222 | thinking 2390 | answer 1216  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T03_r2",
+    "purpose": "Bayes + hidden assumption (random screening vs symptomatic)",
+    "turns": 1,
+    "answered": 1,
+    "seconds": 20.2,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 6290 | thinking 3092 | answer 1348  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T03_r3",
+    "purpose": "Bayes + hidden assumption (random screening vs symptomatic)",
+    "turns": 1,
+    "answered": 1,
+    "seconds": 15.4,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 6096 | thinking 2166 | answer 1031  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T07_r1",
+    "purpose": "underspecified decision: conditional answer or ask, not a confident pick",
+    "turns": 1,
+    "answered": 1,
+    "seconds": 9.8,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 5672 | thinking 1774 | answer 90  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T07_r2",
+    "purpose": "underspecified decision: conditional answer or ask, not a confident pick",
+    "turns": 1,
+    "answered": 1,
+    "seconds": 12.7,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 5622 | thinking 2705 | answer 47  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T07_r3",
+    "purpose": "underspecified decision: conditional answer or ask, not a confident pick",
+    "turns": 1,
+    "answered": 1,
+    "seconds": 9.9,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 5622 | thinking 2025 | answer 46  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T13_r1",
+    "purpose": "held-out reference class: population failure rate -> one specific founder",
+    "turns": 1,
+    "answered": 1,
+    "seconds": 20.8,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 6474 | thinking 2081 | answer 1697  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T13_r2",
+    "purpose": "held-out reference class: population failure rate -> one specific founder",
+    "turns": 1,
+    "answered": 1,
+    "seconds": 20.3,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 6391 | thinking 2547 | answer 1297  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T13_r3",
+    "purpose": "held-out reference class: population failure rate -> one specific founder",
+    "turns": 1,
+    "answered": 1,
+    "seconds": 21.8,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 6410 | thinking 2420 | answer 1528  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T14_r1",
+    "purpose": "held-out reference class: life expectancy at birth vs at age 80",
+    "turns": 1,
+    "answered": 1,
+    "seconds": 20.4,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 6250 | thinking 2816 | answer 1198  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T14_r2",
+    "purpose": "held-out reference class: life expectancy at birth vs at age 80",
+    "turns": 1,
+    "answered": 1,
+    "seconds": 17.9,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 6094 | thinking 2271 | answer 1044  (2 passes)"
+    ],
+    "errors": []
+  },
+  {
+    "id": "T14_r3",
+    "purpose": "held-out reference class: life expectancy at birth vs at age 80",
+    "turns": 1,
+    "answered": 1,
+    "seconds": 17.9,
+    "attempts": 1,
+    "tokens": [
+      "tokens: prompt 6084 | thinking 2199 | answer 1129  (2 passes)"
+    ],
+    "errors": []
+  }
+]

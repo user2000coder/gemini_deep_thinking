@@ -1,0 +1,28 @@
+# T02: reading trap (regression vs V27.4: both readings expected)
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] Tùy thuộc vào cách hiểu câu đầu tiên của bạn:
+
+1. **Nếu "Tôi có 3 quả táo" là trạng thái hiện tại (bạn đang có sẵn 3 quả ngay lúc này):** 
+   Hôm nay bạn có **3 quả**. Việc ăn 1 quả hôm qua không làm thay đổi số lượng bạn đang có hiện tại.
+
+2. **Nếu ý bạn là mốc thời gian bắt đầu (trước hôm qua có 3 quả):** 
+   Hôm qua ăn 1 quả, thì hôm nay bạn còn **2 quả** (3 - 1 = 2). 
+
+Bạn đang ngầm hiểu theo trường hợp nào?
+--- reviewing draft ---
+
+Gemini: Hôm nay bạn có **3 quả** hay **2 quả** tùy thuộc vào cách bạn hiểu câu đầu tiên:
+
+1. **Nếu "Tôi có 3 quả táo" là trạng thái hiện tại (bạn đang sở hữu sẵn 3 quả ngay lúc này):**
+   Hôm nay bạn có **3 quả**. Việc bạn ăn 1 quả vào ngày hôm qua không làm thay đổi số lượng 3 quả mà bạn đang có trong tay ở thời điểm hiện tại.
+
+2. **Nếu "Tôi có 3 quả táo" là mốc khởi đầu (số táo bạn có trước ngày hôm qua):**
+   Hôm qua ăn mất 1 quả, thì hôm nay bạn còn lại **2 quả** (3 - 1 = 2).
+tokens: prompt 5464 | thinking 2134 | answer 300  (2 passes)
+
+You: 

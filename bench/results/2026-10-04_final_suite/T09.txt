@@ -1,0 +1,87 @@
+# T09: multi-turn: constraint + rejected approach must not be revived
+# instruction: instruction_v28.md
+
+gemini-3.5-flash-lite  thinking budget: 24576  deepthink: on  instruction: instruction_v28.md
+/deep toggles deepthink, /reset clears history + reloads instruction, /exit quits
+
+You: 
+[draft] 3 phương án lưu session (không dùng Redis):
+
+1. **Database quan hệ (PostgreSQL / MySQL):**
+   - **Cách làm:** Lưu session vào một bảng riêng trong DB chính (khóa là session ID, giá trị là JSON data + thời gian hết hạn).
+   - **Phù hợp:** Ứng dụng vừa và lớn, đã có sẵn DB, cần kiểm soát chặt việc thu hồi session hoặc logout từ xa.
+   - **Nhược điểm:** Tăng I/O cho DB, cần chạy job dọn dẹp (cleanup) session hết hạn định kỳ.
+
+2. **Cookie mã hóa phía client (Stateless / JWT):**
+   - **Cách làm:** Mã hóa toàn bộ dữ liệu session và lưu trực tiếp vào Cookie (HttpOnly, Secure). Server không lưu state gì cả, chỉ giải mã và xác thực chữ ký.
+   - **Phù hợp:** Hệ thống scale ngang nhiều server (stateless), không muốn phụ thuộc vào tầng lưu trữ tập trung.
+   - **Nhược điểm:** Khó thu hồi ngay lập tức trước hạn (nếu muốn revoke phải dùng thêm cơ chế blacklist phụ); dung lượng giới hạn (khoảng 4KB).
+
+3. **File System / SQLite (hoặc Memcached nếu công ty chỉ cấm riêng Redis):**
+   - **Cách làm:** Lưu session vào các file riêng lẻ trên ổ cứng server hoặc dùng file SQLite nhúng.
+   - **Phù hợp:** Ứng dụng nhỏ, chạy duy nhất 1 instance (single server), triển khai nhanh.
+   - **Nhược điểm:** Không scale ngang được (trừ khi dùng chung Network File System - NFS, nhưng không khuyến khích).
+--- reviewing draft ---
+
+Gemini: 3 phương án lưu session (không dùng Redis):
+
+1. **Database quan hệ (PostgreSQL / MySQL):**
+   - **Cách làm:** Lưu session vào một bảng riêng (khóa là session ID, giá trị là JSON data + thời gian hết hạn).
+   - **Phù hợp:** Hệ thống đã có sẵn DB, cần kiểm soát chặt việc thu hồi (revoke) session hoặc logout từ xa.
+   - **Nhược điểm:** Tăng I/O cho DB chính, cần chạy job dọn dẹp dữ liệu hết hạn định kỳ.
+
+2. **Cookie mã hóa phía client (Stateless / JWT):**
+   - **Cách làm:** Mã hóa dữ liệu session và lưu trực tiếp vào Cookie (HttpOnly, Secure). Server không lưu state, chỉ giải mã và xác thực chữ ký.
+   - **Phù hợp:** Hệ thống scale ngang nhiều server, không muốn phụ thuộc tầng lưu trữ tập trung.
+   - **Nhược điểm:** Khó thu hồi ngay lập tức trước hạn (cần cơ chế blacklist phụ nếu muốn revoke), dung lượng giới hạn khoảng 4KB.
+
+3. **File System hoặc SQLite (cho single-instance):**
+   - **Cách làm:** Lưu session vào các file riêng lẻ trên ổ cứng server hoặc file SQLite cục bộ.
+   - **Phù hợp:** Ứng dụng nhỏ chạy duy nhất 1 instance, muốn triển khai nhanh không cần dịch vụ ngoài.
+   - **Nhược điểm:** Không scale ngang được (trừ khi dùng Network File System, nhưng không khuyến khích). *(Lưu ý: Tránh dùng Memcached dù không phải Redis vì có thể vi phạm tinh thần chính sách cấm in-memory cache của công ty).*
+tokens: prompt 6034 | thinking 2013 | answer 720  (2 passes)
+
+You: 
+[draft] Chọn **Database quan hệ (PostgreSQL / MySQL)**.
+
+**Lý do:**
+1. **Thu hồi ngay lập tức:** Chỉ cần `DELETE FROM sessions WHERE id = ?` hoặc đổi cờ `is_active = 0`. Request tiếp theo check vào DB sẽ bị chặn ngay.
+2. **Hỗ trợ scale ngang:** Nếu sau này app tăng instance, tất cả các server đều đọc chung một DB mà không lo lệch state (điều mà File System/SQLite không làm được nếu không dùng ổ cứng mạng phức tạp).
+3. **Tận dụng có sẵn:** Hầu hết web app đều đã có sẵn DB, không cần xin cấp phép hay cài đặt thêm hạ tầng mới (tránh được việc vi phạm chính sách cấm Redis).
+
+**Chỉ dùng File System / SQLite khi:** App của bạn chắc chắn chỉ chạy duy nhất 1 instance vĩnh viễn và bạn muốn tránh mọi câu lệnh I/O xuống DB chính cho việc quản lý session.
+--- reviewing draft ---
+
+Gemini: Nên chọn **Database quan hệ (PostgreSQL / MySQL)**.
+
+**Lý do:**
+1. **Thu hồi ngay lập tức:** Chỉ cần `DELETE FROM sessions WHERE id = ?` hoặc cập nhật cờ trạng thái. Request tiếp theo sẽ bị chặn ngay lập tức.
+2. **Hỗ trợ scale ngang:** Khi app tăng số lượng instance, tất cả các server đều đọc chung một DB, tránh việc lệch state (điểm yếu chí mạng của File System/SQLite khi chạy đa server).
+
+**Giả định ngầm và rủi ro cần lưu ý:**
+* **Giả định:** Tải của hệ thống ở mức vừa phải hoặc DB hiện tại đủ sức chịu thêm I/O query cho mỗi request (vì đã cấm Redis, mọi request cần xác thực session đều phải chạm xuống DB).
+* **Nếu giả định sai (Lượng traffic cực lớn):** Việc query DB liên tục cho mỗi request sẽ tạo ra bottleneck (nút thắt cổ chai) nghiêm trọng. 
+  * *Nếu hệ thống lớn và chịu tải cao:* Bạn buộc phải tối ưu cực tốt (đặt index cho bảng session, dùng connection pooling) hoặc kiểm tra lại xem chính sách công ty có cấm *tất cả* in-memory cache hay chỉ cấm riêng Redis (để xem xét các giải pháp thay thế tương đương).
+  * *Nếu hệ thống chắc chắn chỉ chạy 1 instance duy nhất:* Lúc đó phương án **File System hoặc SQLite** mới đáng cân nhắc hơn để giải phóng hoàn toàn áp lực cho DB chính.
+tokens: prompt 6663 | thinking 1684 | answer 530  (2 passes)
+
+You: 
+[draft] **Database quan hệ kết hợp Local In-Memory Cache (TTL ngắn 5-10 giây) và Read Replicas.**
+
+**Lý do:**
+* Nếu query trực tiếp DB 100% ở tải 10x, DB sẽ nghẽn (bottleneck).
+* Dùng local cache trên từng server giúp giảm 90% tải cho DB, đồng thời vẫn giữ được khả năng thu hồi session (độ trễ thu hồi tối đa bằng thời gian TTL của cache, ví dụ tối đa 5-10 giây).
+--- reviewing draft ---
+
+Gemini: Vẫn dùng **Database quan hệ**, nhưng scale bằng mô hình **Master-Replica (Read Replicas)** kết hợp **Connection Pooling và Indexing**.
+
+**Cách hoạt động:**
+* Các request đọc/xác thực session được phân tải sang các **Read Replicas**, giảm áp lực nghẽn mạng cho DB chính.
+* Các request ghi hoặc thu hồi session (logout, xóa session) thực hiện trực tiếp trên **Master DB** để đảm bảo tính **thu hồi ngay lập tức** (đáp ứng ràng buộc cứng).
+
+**Giả định ngầm & Lưu ý:**
+* **Không dùng Local In-Memory Cache có TTL** vì sẽ tạo độ trễ, vi phạm yêu cầu thu hồi *ngay lập tức* của bạn.
+* Giải pháp này giữ nguyên logic bảo mật nhưng đòi hỏi hạ tầng DB phải cấu hình replication ổn định. Nếu tải tiếp tục vượt ngưỡng chịu đựng của Read Replicas, cần nâng cấp cấu hình (scale-up) phần cứng DB chính.
+tokens: prompt 7273 | thinking 2619 | answer 329  (2 passes)
+
+You: 
